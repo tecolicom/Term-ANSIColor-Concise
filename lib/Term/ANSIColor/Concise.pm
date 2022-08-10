@@ -1,8 +1,8 @@
-package Getopt::EX::Colormap;
-use version; our $VERSION = version->declare("v1.28.0");
+package Text::ANSI::Concise;
+
+our $VERSION = "v1.28.0";
 
 use v5.14;
-use warnings;
 use utf8;
 
 use Exporter 'import';
@@ -12,17 +12,12 @@ our @EXPORT_OK   = qw(
     colortable colortable6 colortable12 colortable24
     );
 our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
-our @ISA         = qw(Getopt::EX::LabeledParam);
 
 use Carp;
 use Data::Dumper;
 $Data::Dumper::Sortkeys = 1;
 
 use List::Util qw(min max first);
-
-use Getopt::EX::LabeledParam;
-use Getopt::EX::Util;
-use Getopt::EX::Func qw(callable);
 
 our $NO_NO_COLOR //= $ENV{GETOPTEX_NO_NO_COLOR};
 our $NO_COLOR    //= !$NO_NO_COLOR && defined $ENV{NO_COLOR};
@@ -348,9 +343,14 @@ sub cached_colorize {
     join '', @result;
 }
 
+use Scalar::Util qw(blessed);
+
 sub apply_color {
     my($cache, $color, $text) = @_;
-    if (callable $color) {
+    if (ref $color eq 'CODE') {
+	return $color->($text);
+    }
+    elsif (blessed $color and $color->can('call')) {
 	return $color->call for $text;
     }
     elsif ($NO_COLOR) {
@@ -366,73 +366,6 @@ sub apply_color {
 	}
 	return $text;
     }
-}
-
-sub new {
-    my $class = shift;
-    my $obj = $class->SUPER::new;
-    my %opt = @_;
-
-    $obj->{CACHE} = {};
-    $opt{CONCAT} //= "^"; # Reset character for LabeledParam object
-    $obj->configure(%opt);
-
-    $obj;
-}
-
-sub index_color {
-    my $obj = shift;
-    my $index = shift;
-    my $text = shift;
-
-    my $list = $obj->{LIST};
-    if (@$list) {
-	$text = $obj->color($list->[$index % @$list], $text, $index);
-    }
-    $text;
-}
-
-sub color {
-    my $obj = shift;
-    my $color = shift;
-    my $text = shift;
-
-    my $map = $obj->{HASH};
-    my $c = exists $map->{$color} ? $map->{$color} : $color;
-
-    return $text unless $c;
-
-    cached_colorize($obj->{CACHE}, $c, $text);
-}
-
-sub colormap {
-    my $obj = shift;
-    my %opt = @_;
-    $opt{name}    //= "--newopt";
-    $opt{option}  //= "--colormap";
-    $opt{sort}    //= "length";
-
-    my $hash = $obj->{HASH};
-    join "\n", (
-	"option $opt{name} \\",
-	do {
-	    my $maxlen = $opt{noalign} ? "" : do {
-		max map { length } keys %{$hash};
-	    };
-	    my $format = "\t%s %${maxlen}s=%s \\";
-	    my $compare = do {
-		if ($opt{sort} eq "length") {
-		    sub { length $a <=> length $b or $a cmp $b };
-		} else {
-		    sub { $a cmp $b };
-		}
-	    };
-	    map {
-		sprintf $format, $opt{option}, $_, $hash->{$_} // "";
-	    } sort $compare keys %{$hash};
-	},
-	"\t\$<ignore>\n",
-	);
 }
 
 sub colortable6 {
@@ -549,25 +482,12 @@ __END__
 
 =head1 NAME
 
-Getopt::EX::Colormap - ANSI terminal color and option support
+Text::ANSI::Concise - Produce ANSI terminal sequence with concise notation
 
 
 =head1 SYNOPSIS
 
-  GetOptions('colormap|cm:s' => @opt_colormap);
-
-  require Getopt::EX::Colormap;
-  my $cm = Getopt::EX::Colormap
-      ->new
-      ->load_params(@opt_colormap);  
-
-  print $cm->color('FILE', 'FILE labeled text');
-
-  print $cm->index_color($index, 'TEXT');
-
-    or
-
-  use Getopt::EX::Colormap qw(colorize);
+  use Text::ANSI::Concise qw(colorize);
   $text = colorize(SPEC, TEXT);
   $text = colorize(SPEC_1, TEXT_1, SPEC_2, TEXT_2, ...);
 
@@ -576,64 +496,60 @@ Getopt::EX::Colormap - ANSI terminal color and option support
 
 =head1 DESCRIPTION
 
-Text coloring capability is not strongly bound to option processing,
-but it may be useful to give a simple uniform way to specify
-complicated color setting from command line.
-
-This module assumes color information is given in two ways: one in
-labeled list, and one in indexed list.
-
-Handler maintains hash and list objects, and labeled colors are stored
-in hash, index colors are in list automatically.  User can mix both
-specifications.
-
-=head2 LABELED COLOR
-
-This is an example of labeled list:
-
-    --cm 'COMMAND=SE,OMARK=CS,NMARK=MS' \
-    --cm 'OTEXT=C,NTEXT=M,*CHANGE=BD/445,DELETE=APPEND=RD/544' \
-    --cm 'CMARK=GS,MMARK=YS,CTEXT=G,MTEXT=Y'
-
-Color definitions are separated by comma (C<,>) and the label is
-specified by I<LABEL=> style precedence.  Multiple labels can be set
-for same value by connecting them together.  Label name can be
-specified with C<*> and C<?> wildcard characters.
-
-If the color spec start with plus (C<+>) mark with the labeled list
-format, it is appended to the current value with reset mark (C<^>).
-Next example uses wildcard to set all labels end with `CHANGE' to `R'
-and set `R^S' to `OCHANGE' label.
-
-    --cm '*CHANGE=R,OCHANGE=+S'
-
-=head2 INDEX COLOR
-
-Indexed list example is like this:
-
-    --cm 555/100,555/010,555/001 \
-    --cm 555/011,555/101,555/110 \
-    --cm 555/021,555/201,555/210 \
-    --cm 555/012,555/102,555/120
-
-This is an example of RGB 6x6x6 216 colors specification.  Left side
-of slash is foreground, and right side is for background color.  This
-color list is accessed by index.
-
-=head2 CALLING FUNCTIONS
-
-Besides producing ANSI colored text, this module supports calling
-arbitrary function to handle a string.  See L<FUNCTION SPEC> section
-for more detail.
+It may be useful to give a simple uniform way to specify complicated
+colors.
 
 =head2 256 or 24bit COLORS
 
 By default, this library produces ANSI 256 color sequence.  That is
 eight standard colors, eight high intensity colors, 6x6x6 216 colors,
-and grayscales from black to white in 24 steps.  12bit/24bit color is
-converted to 6x6x6 216 color, or greyscale when all values are same.
+and grayscales from black to white in 24 steps.
 
-To produce 24bit RGB color sequence, set C<$RGB24> module variable.
+Color can be described by 12bit/24bit RGB values but they are
+converted to 6x6x6 216 colors, or 24 greyscales if all RGB values are
+same.  To produce 24bit RGB color sequence, set C<$RGB24> module
+variable or use appropiate environment.
+
+=head1 FUNCTION
+
+=over 4
+
+=item B<colorize>(I<color_spec>, I<text>)
+
+=item B<colorize24>(I<color_spec>, I<text>)
+
+Return colorized version of given text.
+
+B<colorize> produces 256 or 24bit colors depending on the setting,
+while B<colorize24> always produces 24bit color sequence for
+24bit/12bit color spec.  See L<ENVIRONMENT>.
+
+=item B<ansi_code>(I<color_spec>)
+
+Produces introducer sequence for given spec.  Reset code can be taken
+by B<ansi_code("Z")>.
+
+=item B<ansi_pair>(I<color_spec>)
+
+Produces introducer and recover sequences for given spec. Recover
+sequence includes I<Erase Line> related control with simple SGR reset
+code.
+
+=item B<csi_code>(I<name>, I<params>)
+
+Produce CSI (Control Sequence Introducer) sequence by name with
+numeric parameters.  Parameter I<name> is one of standard (CUU, CUD,
+CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, SU, SD, HVP, SGR, SCP, RCP) or
+non-standard (RIS, DECSC, DECRC).
+
+=item B<colortable>([I<width>])
+
+Print visual 256 color matrix table on the screen.  Default I<width>
+is 144.  Use like this:
+
+    perl -MGetopt::EX::Colormap=colortable -e colortable
+
+=back
 
 =head1 COLOR SPEC
 
@@ -693,13 +609,6 @@ with other special effects :
     ^    Reset to foreground
     ~    Cancel following effect
 
-=over 4
-
-Symbol for concealing used to be B<V> (Vanish) before.  B<V> can still
-be used for backward compatibility, but would be deprecated someday.
-
-=back
-
 At first the color is considered as foreground, and slash (C</>)
 switches foreground and background.  If multiple colors are given in
 the same spec, all indicators are produced in the order of their
@@ -709,10 +618,6 @@ If the character is preceded by tilde (C<~>), it means negation of
 following effect; C<~S> reset the effect of C<S>.  There is a
 discussion about negation of C<D> (Track Wikipedia link in SEE ALSO),
 and Apple_Terminal (v2.10 433) does not reset at least.
-
-If the spec start with plus (C<+>) or minus (C<->) character,
-following characters are appended/deleted to/from previous
-value. Reset mark (C<^>) is inserted before appended string.
 
 Effect characters are case insensitive, and can be found anywhere and
 in any order in color spec string.  Character C<;> does nothing and
@@ -735,8 +640,7 @@ copied to just before ending reset sequence, with preceding sequence
 if necessary, to keep the effect even when the text is wrapped to
 multiple lines.
 
-Other ANSI CSI sequences are also available in the form of C<{NAME}>,
-despite there are few reasons to use them.
+Other ANSI CSI sequences are also available in the form of C<{NAME}>.
 
     CUU n   Cursor up
     CUD n   Cursor Down
@@ -769,10 +673,7 @@ These sequences do not start with CSI, and take no parameters.
 
 =head1 COLOR NAMES
 
-Color names are experimentally supported in this version.  Currently
-names are listed in L<Graphics::ColorNames::X> module.  Following
-colors are available.
-
+Color names listed in L<Graphics::ColorNames::X> module can be used.
 See L<https://en.wikipedia.org/wiki/X11_color_names>.
 
     gray gray0 .. gray100
@@ -862,199 +763,13 @@ Although these colors are defined in 24bit value, they are mapped to
 
 =head1 FUNCTION SPEC
 
-It is also possible to set arbitrary function which is called to
-handle string in place of color, and that is not necessarily concerned
-with color.  This scheme is quite powerful and the module name itself
-may be somewhat misleading.  Spec string which start with C<sub{> is
-considered as a function definition.  So
+Color spec can be CODEREF or object.  If it is a CODEREF, that code is
+called with text as an argument, and return the result.
 
-    % example --cm 'sub{uc}'
+If it is an object which has method C<call>, it is called with the
+variable C<$_> set as target text.
 
-set the function object in the color entry.  And when C<color> method
-is called with that object, specified function is called instead of
-producing ANSI color sequence.  Function is supposed to get the target
-text as a global variable C<$_>, and return the result as a string.
-Function C<sub{uc}> in the above example returns uppercase version of
-C<$_>.
-
-If your script prints file name according to the color spec labeled by
-B<FILE>, then
-
-    % example --cm FILE=R
-
-prints the file name in red, but
-
-    % example --cm FILE=sub{uc}
-
-will print the name in uppercases.
-
-Spec start with C<&> is considered as a function name.  If the
-function C<double> is defined like:
-
-    sub double { $_ . $_ }
-
-then, command
-
-    % example --cm '&double'
-
-produces doubled text by C<color> method.  Function can also take
-parameters, so the next example
-
-    sub repeat {
-	my %opt = @_;
-	$_ x $opt{count} // 1;
-    }
-
-    % example --cm '&repeat(count=3)'
-
-produces tripled text.
-
-Function object is created by <Getopt::EX::Func> module.  Take a look
-at the module for detail.
-
-
-=head1 EXAMPLE CODE
-
-    #!/usr/bin/perl
-    
-    use strict;
-    use warnings;
-
-    my @opt_colormap;
-    use Getopt::EX::Long;
-    GetOptions("colormap|cm=s" => \@opt_colormap);
-    
-    my %colormap = ( # default color map
-        FILE => 'R',
-        LINE => 'G',
-        TEXT => 'B',
-        );
-    my @colors;
-    
-    require Getopt::EX::Colormap;
-    my $handler = Getopt::EX::Colormap->new(
-        HASH => \%colormap,
-        LIST => \@colors,
-        );
-    
-    $handler->load_params(@opt_colormap);
-
-    for (0 .. $#colors) {
-        print $handler->index_color($_, "COLOR $_"), "\n";
-    }
-    
-    for (sort keys %colormap) {
-        print $handler->color($_, $_), "\n";
-    }
-
-This sample program is complete to work.  If you save this script as a
-file F<example>, try to put following contents in F<~/.examplerc> and
-see what happens.
-
-    option default \
-        --cm 555/100,555/010,555/001 \
-        --cm 555/011,555/101,555/110 \
-        --cm 555/021,555/201,555/210 \
-        --cm 555/012,555/102,555/120
-
-
-=head1 METHOD
-
-=over 4
-
-=item B<color> I<label>, TEXT
-
-=item B<color> I<color_spec>, TEXT
-
-Return colored text indicated by label or color spec string.
-
-=item B<index_color> I<index>, TEXT
-
-Return colored text indicated by I<index>.  If the index is bigger
-than color list, it rounds up.
-
-=item B<new>
-
-=item B<append>
-
-=item B<load_params>
-
-See super class L<Getopt::EX::LabeledParam>.
-
-=item B<colormap>
-
-Return string which can be used for option definition.  Some
-parameters can be specified like:
-
-    $obj->colormap(name => "--newopt", option => "--colormap");
-
-=over 4
-
-=item B<name>
-
-Specify new option name.
-
-=item B<option>
-
-Specify option name for colormap setup.
-
-=item B<sort>
-
-Default value is C<length> and sort options by their length.  Use
-C<alphabet> to sort them alphabetically.
-
-=item B<noalign>
-
-Colormap label is aligned so that `=' marks are lined vertically.
-Give true value to B<noalign> parameter, if you don't like this
-behavior.
-
-=back
-
-=back
-
-
-=head1 FUNCTION
-
-=over 4
-
-=item B<colorize>(I<color_spec>, I<text>)
-
-=item B<colorize24>(I<color_spec>, I<text>)
-
-Return colorized version of given text.
-
-B<colorize> produces 256 or 24bit colors depending on the setting,
-while B<colorize24> always produces 24bit color sequence for
-24bit/12bit color spec.  See L<ENVIRONMENT>.
-
-=item B<ansi_code>(I<color_spec>)
-
-Produces introducer sequence for given spec.  Reset code can be taken
-by B<ansi_code("Z")>.
-
-=item B<ansi_pair>(I<color_spec>)
-
-Produces introducer and recover sequences for given spec. Recover
-sequence includes I<Erase Line> related control with simple SGR reset
-code.
-
-=item B<csi_code>(I<name>, I<params>)
-
-Produce CSI (Control Sequence Introducer) sequence by name with
-numeric parameters.  I<name> is one of CUU, CUD, CUF, CUB, CNL, CPL,
-CHA, CUP, ED, EL, SU, SD, HVP, SGR, SCP, RCP.
-
-=item B<colortable>([I<width>])
-
-Print visual 256 color matrix table on the screen.  Default I<width>
-is 144.  Use like this:
-
-    perl -MGetopt::EX::Colormap=colortable -e colortable
-
-=back
-
-=head2 EXAMPLE
+=head1 EXAMPLE
 
 If you want to use this module instead of L<Term::ANSIColor>, this
 example code
@@ -1073,7 +788,7 @@ example code
 
 can be written with L<Getopt::EX::Colormap> like:
 
-    use Getopt::EX::Colormap qw(colorize ansi_code);
+    use Text::ANSI::Concise qw(colorize ansi_code);
     print ansi_code 'DB';
     print "This text is bold blue.\n";
     print ansi_code 'Z';
@@ -1122,9 +837,6 @@ See L<RESET SEQUENCE>.
 
 
 =head1 SEE ALSO
-
-L<Getopt::EX>,
-L<Getopt::EX::LabeledParam>
 
 L<https://en.wikipedia.org/wiki/ANSI_escape_code>
 
