@@ -64,7 +64,7 @@
          "web" : "https://github.com/kaz-utashiro/Term-ANSIColor-Concise"
       }
    },
-   "version" : "v1.28.0",
+   "version" : "2.00_00",
    "x_authority" : "cpan:UTASHIRO",
    "x_contributors" : [
       "Kazumasa Utashiro <kaz@utashiro.com>",

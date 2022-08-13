@@ -1,6 +1,6 @@
 package Term::ANSIColor::Concise::Table;
 
-our $VERSION = "v1.28.0";
+our $VERSION = "2.00_00";
 
 use v5.14;
 use utf8;

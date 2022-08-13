@@ -2,5 +2,7 @@ Revision history for Perl extension Text-ANSI-Concise
 
 {{$NEXT}}
 
+2.00_00 2022-08-13T06:20:58Z
+
     - Spin off from Getopt::EX::Colomap
 
