@@ -1,4 +1,4 @@
-package Text::ANSI::Concise;
+package Term::ANSIColor::Concise;
 
 our $VERSION = "v1.28.0";
 
@@ -8,8 +8,8 @@ use utf8;
 use Exporter 'import';
 our @EXPORT      = qw();
 our @EXPORT_OK   = qw(
-    colorize colorize24 ansi_code ansi_pair csi_code
-    colortable colortable6 colortable12 colortable24
+    ansi_color ansi_color_24 ansi_code ansi_pair csi_code
+    map_256_to_6 map_to_256
     );
 our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
 
@@ -17,15 +17,16 @@ use Carp;
 use Data::Dumper;
 $Data::Dumper::Sortkeys = 1;
 
+use Term::ANSIColor::Concise::Util;
 use List::Util qw(min max first);
 
-our $NO_NO_COLOR //= $ENV{GETOPTEX_NO_NO_COLOR};
+our $NO_NO_COLOR //= $ENV{ANSICOLOR_NO_NO_COLOR};
 our $NO_COLOR    //= !$NO_NO_COLOR && defined $ENV{NO_COLOR};
-our $RGB24       //= $ENV{COLORTERM}//'' eq 'truecolor' || $ENV{GETOPTEX_RGB24};
-our $LINEAR256   //= $ENV{GETOPTEX_LINEAR256};
-our $LINEAR_GREY //= $ENV{GETOPTEX_LINEARGREY};
-our $NO_RESET_EL //= $ENV{GETOPTEX_NO_RESET_EL};
-our $SPLIT_ANSI  //= $ENV{GETOPTEX_SPLIT_ANSI};
+our $RGB24       //= $ENV{COLORTERM}//'' eq 'truecolor' || $ENV{ANSICOLOR_RGB24};
+our $LINEAR_256  //= $ENV{ANSICOLOR_LINEAR_256};
+our $LINEAR_GRAY //= $ENV{ANSICOLOR_LINEAR_GRAY};
+our $NO_RESET_EL //= $ENV{ANSICOLOR_NO_RESET_EL};
+our $SPLIT_ANSI  //= $ENV{ANSICOLOR_SPLIT_ANSI};
 
 my @nonlinear = do {
     map { ( $_->[0] ) x $_->[1] } (
@@ -41,7 +42,7 @@ my @nonlinear = do {
 sub map_256_to_6 {
     use integer;
     my $i = shift;
-    if ($LINEAR256) {
+    if ($LINEAR_256) {
 	5 * $i / 255;
     } else {
 	# ( $i - 35 ) / 40;
@@ -60,7 +61,7 @@ sub map_to_256 {
 
 sub ansi256_number {
     my $code = shift;
-    my($r, $g, $b, $grey);
+    my($r, $g, $b, $gray);
     if ($code =~ /^([0-5])([0-5])([0-5])$/) {
 	($r, $g, $b) = ($1, $2, $3);
     }
@@ -69,37 +70,37 @@ sub ansi256_number {
 	if ($n == 0 or $n == 25) {
 	    $r = $g = $b = $n / 5;
 	} else {
-	    $grey = $n - 1;
+	    $gray = $n - 1;
 	}
     }
     else {
 	croak "Color spec error: $code.";
     }
-    defined $grey ? ($grey + 232) : ($r*36 + $g*6 + $b + 16);
+    defined $gray ? ($gray + 232) : ($r*36 + $g*6 + $b + 16);
 }
 
 sub rgb24_number {
     use integer;
     my($rx, $gx, $bx) = @_;
-    my($r, $g, $b, $grey);
+    my($r, $g, $b, $gray);
     if ($rx != 0 and $rx != 255 and $rx == $gx and $rx == $bx) {
-	if ($LINEAR_GREY) {
+	if ($LINEAR_GRAY) {
 	    ##
-	    ## Divide area into 25 segments, and map to BLACK and 24 GREYS
+	    ## Divide area into 25 segments, and map to BLACK and 24 GRAYS
 	    ##
-	    $grey = $rx * 25 / 255 - 1;
-	    if ($grey < 0) {
+	    $gray = $rx * 25 / 255 - 1;
+	    if ($gray < 0) {
 		$r = $g = $b = 0;
-		$grey = undef;
+		$gray = undef;
 	    }
 	} else {
 	    ## map to 8, 18, 28, ... 238
-	    $grey = min(23, ($rx - 3) / 10);
+	    $gray = min(23, ($rx - 3) / 10);
 	}
     } else {
 	($r, $g, $b) = map { map_256_to_6 $_ } $rx, $gx, $bx;
     }
-    defined $grey ? ($grey + 232) : ($r*36 + $g*6 + $b + 16);
+    defined $gray ? ($gray + 232) : ($r*36 + $g*6 + $b + 16);
 }
 
 sub rgbhex {
@@ -148,7 +149,7 @@ my $colorspec_re = qr{
 	     | \#[0-9a-f]{3,} )		 # generic hex
     | (?<rgb>  \(\d+,\d+,\d+\) )	 # 24bit decimal
     | (?<c256>	 [0-5][0-5][0-5]	 # 216 (6x6x6) colors
-	     | L(?:[01][0-9]|[2][0-5]) ) # 24 grey levels + B/W
+	     | L(?:[01][0-9]|[2][0-5]) ) # 24 gray levels + B/W
     | (?<c16>  [KRGYBMCW] )		 # 16 colors
     | (?<efct> ~?[;NZDPIUFQSHVX] )	 # effects
     | (?<csi>  { (?<csi_name>[A-Z]+)	 # other CSI
@@ -163,7 +164,7 @@ my $colorspec_re = qr{
 sub ansi_numbers {
     local $_ = shift // '';
     my @numbers;
-    my $toggle = Getopt::EX::ToggleValue->new(value => 10);
+    my $toggle = Term::ANSIColor::Concise::ToggleValue->new(value => 10);
 
     while (m{\G (?: $colorspec_re | (?<err> .+ ) ) }xig) {
 	if ($+{toggle}) {
@@ -239,28 +240,28 @@ use constant {
 };
 
 my %csi_terminator = (
-    CUU => 'A',		# Cursor up
-    CUD => 'B',		# Cursor Down
-    CUF => 'C',		# Cursor Forward
-    CUB => 'D',		# Cursor Back
-    CNL => 'E',		# Cursor Next Line
-    CPL => 'F',		# Cursor Previous line
-    CHA => 'G',		# Cursor Horizontal Absolute
-    CUP => 'H',		# Cursor Position
-    ED  => 'J',		# Erase in Display (0 after, 1 before, 2 entire, 3 w/buffer)
-    EL  => 'K',		# Erase in Line (0 after, 1 before, 2 entire)
-    SU  => 'S',		# Scroll Up
-    SD  => 'T',		# Scroll Down
-    HVP => 'f',		# Horizontal Vertical Position
-    SGR => 'm',		# Select Graphic Rendition
-    SCP => 's',		# Save Cursor Position
-    RCP => 'u',		# Restore Cursor Position
+    CUU => 'A',	 # Cursor up
+    CUD => 'B',	 # Cursor Down
+    CUF => 'C',	 # Cursor Forward
+    CUB => 'D',	 # Cursor Back
+    CNL => 'E',	 # Cursor Next Line
+    CPL => 'F',	 # Cursor Previous line
+    CHA => 'G',	 # Cursor Horizontal Absolute
+    CUP => 'H',	 # Cursor Position
+    ED  => 'J',	 # Erase in Display (0 after, 1 before, 2 entire, 3 w/buffer)
+    EL  => 'K',	 # Erase in Line (0 after, 1 before, 2 entire)
+    SU  => 'S',	 # Scroll Up
+    SD  => 'T',	 # Scroll Down
+    HVP => 'f',	 # Horizontal Vertical Position
+    SGR => 'm',	 # Select Graphic Rendition
+    SCP => 's',	 # Save Cursor Position
+    RCP => 'u',	 # Restore Cursor Position
     );
 
 my %other_sequence = (
-    RIS   => "\ec",	# Reset to Initial State
-    DECSC => "\e7",	# DEC Save Cursor
-    DECRC => "\e8",	# DEC Restore Cursor
+    RIS   => "\ec",  # Reset to Initial State
+    DECSC => "\e7",  # DEC Save Cursor
+    DECRC => "\e8",  # DEC Restore Cursor
     );
 
 sub csi_code {
@@ -320,16 +321,16 @@ sub ansi_pair {
     ($start, $end, $el);
 }
 
-sub colorize {
-    cached_colorize(state $cache = {}, @_);
+sub ansi_color {
+    cached_ansi_color(state $cache = {}, @_);
 }
 
-sub colorize24 {
+sub ansi_color_24 {
     local $RGB24 = 1;
-    cached_colorize(state $cache = {}, @_);
+    cached_ansi_color(state $cache = {}, @_);
 }
 
-sub cached_colorize {
+sub cached_ansi_color {
     my $cache = shift;
     my @result;
     while (@_ >= 2) {
@@ -368,113 +369,6 @@ sub apply_color {
     }
 }
 
-sub colortable6 {
-    colortableN(
-	step   => 6,
-	string => "    ",
-	line   => 2,
-	x => 1, y => 1, z => 1,
-	@_
-	);
-}
-
-sub colortable12 {
-    colortableN(
-	step   => 12,
-	string => "  ",
-	x => 1, y => 1, z => 2,
-	@_
-	);
-}
-
-# use charnames ':full';
-
-sub colortable24 {
-    colortableN(
-	step   => 24,
-	string => "\N{U+2580}", # "\N{UPPER HALF BLOCK}",
-	shift  => 1,
-	x => 1, y => 2, z => 4,
-	@_
-	);
-}
-
-sub colortableN {
-    my %arg = (
-	shift => 0,
-	line  => 1,
-	row   => 3,
-	@_);
-    my @combi = do {
-	my @default = qw( XYZ YZX ZXY  YXZ XZY ZYX );
-	if (my @s = $arg{row} =~ /[xyz]{3}/ig) {
-	    @s;
-	} else {
-	    @default[0 .. $arg{row} - 1];
-	}
-    };
-    my @order = map {
-	my @ord = map { { X=>0, Y=>1, Z=>2 }->{$_} } /[XYZ]/g;
-	sub { @_[@ord] }
-    } map { uc } @combi;
-    binmode STDOUT, ":utf8";
-    for my $order (@order) {
-	my $rgb = sub {
-	    sprintf "#%02x%02x%02x",
-		map { map_to_256($arg{step}, $_) } $order->(@_);
-	};
-	for (my $y = 0; $y < $arg{step}; $y += $arg{y}) {
-	    my @out;
-	    for (my $z = 0; $z < $arg{step}; $z += $arg{z}) {
-		for (my $x = 0; $x < $arg{step}; $x += $arg{x}) {
-		    my $fg = $rgb->($x, $y, $z);
-		    my $bg = $rgb->($x, $y + $arg{shift}, $z);
-		    push @out, colorize "$fg/$bg", $arg{string};
-		}
-	    }
-	    print((@out, "\n") x $arg{line});
-	}
-    }
-}
-
-sub colortable {
-    my $width = shift || 144;
-    my $column = min 6, $width / (4 * 6);
-    for my $c (0..5) {
-	for my $b (0..5) {
-	    my @format =
-		("%d$b$c", "$c%d$b", "$b$c%d", "$b%d$c", "$c$b%d", "%d$c$b")
-		[0 .. $column - 1];
-	    for my $format (@format) {
-		for my $a (0..5) {
-		    my $rgb = sprintf $format, $a;
-		    print colorize "$rgb/$rgb", " $rgb";
-		}
-	    }
-	    print "\n";
-	}
-    }
-    for my $g (0..5) {
-	my $grey = $g x 3;
-	print colorize "$grey/$grey", sprintf(" %-19s", $grey);
-    }
-    print "\n";
-    for ('L00' .. 'L25') {
-	print colorize "$_/$_", " $_";
-    }
-    print "\n";
-    for my $rgb ("RGBCMYKW", "rgbcmykw") {
-	for my $c (split //, $rgb) {
-	    print colorize "$c/$c", "  $c ";
-	}
-	print "\n";
-    }
-    for my $rgb (qw(500 050 005 055 505 550 000 555)) {
-	print colorize "$rgb/$rgb", " $rgb";
-    }
-    print "\n";
-}
-
 1;
 
 __END__
@@ -482,22 +376,27 @@ __END__
 
 =head1 NAME
 
-Text::ANSI::Concise - Produce ANSI terminal sequence with concise notation
+Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
 
 =head1 SYNOPSIS
 
-  use Text::ANSI::Concise qw(colorize);
-  $text = colorize(SPEC, TEXT);
-  $text = colorize(SPEC_1, TEXT_1, SPEC_2, TEXT_2, ...);
+  use v5.14;
+  use Term::ANSIColor::Concise qw(ansi_color);
 
-  $ perl -MGetopt::EX::Colormap=colortable -e colortable
+  say ansi_color('R', 'This is Red');
 
+  say ansi_color('SDG', 'This is Reverse Bold Green');
+
+  say ansi_color('FUDI;B/L24E',
+                 'Flashing Underlined Bold Italic Blue on Gray24 bar');
 
 =head1 DESCRIPTION
 
-It may be useful to give a simple uniform way to specify complicated
-colors.
+This module provides a simple concise format to describe complicated
+colors and effects for ANSI terminals.  They are supposed to be used
+in command line option parameters.  Easy interface is provided by
+L<Getopt::EX::Colormap> module.
 
 =head2 256 or 24bit COLORS
 
@@ -505,35 +404,58 @@ By default, this library produces ANSI 256 color sequence.  That is
 eight standard colors, eight high intensity colors, 6x6x6 216 colors,
 and grayscales from black to white in 24 steps.
 
-Color can be described by 12bit/24bit RGB values but they are
-converted to 6x6x6 216 colors, or 24 greyscales if all RGB values are
-same.  To produce 24bit RGB color sequence, set C<$RGB24> module
-variable or use appropiate environment.
+Color described by 12bit/24bit RGB values are converted to 6x6x6 216
+colors, or 24 grayscales if all RGB values are same.
+
+For a terminal which can display 24bit colors, full-color sequence is
+produce.  See L</ENVIRONMENT> section.
+
 
 =head1 FUNCTION
 
 =over 4
 
-=item B<colorize>(I<color_spec>, I<text>)
+=item B<ansi_color>(I<spec>, I<text>)
 
-=item B<colorize24>(I<color_spec>, I<text>)
+Return colorized version of given text.  Produces 256 or 24bit colors
+depending on the setting.
 
-Return colorized version of given text.
+In the result, given I<text> is enclosed by appropriate open/close
+sequences, but close sequence can be different according to the open
+sequence.  See L</RESET SEQUENCE> section.
 
-B<colorize> produces 256 or 24bit colors depending on the setting,
-while B<colorize24> always produces 24bit color sequence for
-24bit/12bit color spec.  See L<ENVIRONMENT>.
+If the I<text> already includes colored regions, they remain untouched
+and only non-colored parts are colored.
+
+Actually, I<spec> and I<text> pair can be repeated as many as
+possible.  It is same as calling the function multiple times with
+single pair and join results.
+
+=item B<ansi_color>([ I<spec1>, I<spec2>, ... ], I<text>)
+
+If I<spec> parameter is ARRAYREF, multiple I<spec>s can be specified
+at once.  This is not useful for color spec because they can be simply
+joined, but may be useful when mixed with L</FUNCTION SPEC>.
+
+=item B<ansi_color_24>(I<spec>, I<text>)
+
+=item B<ansi_color_24>([ I<spec1>, I<spec2>, ... ], I<text>)
+
+Function B<ansi_color_24> always produces 24bit color sequence for
+12bit/24bit color spec.
+
+=item B<ansi_pair>(I<color_spec>)
+
+Produces introducer and recover sequences for given spec.
+
+Additional third value indicates if the introducer includes Erase Line
+sequence.  It gives a hint the sequence is necessary for empty string.
+See L</RESET SEQUENCE>.
 
 =item B<ansi_code>(I<color_spec>)
 
 Produces introducer sequence for given spec.  Reset code can be taken
 by B<ansi_code("Z")>.
-
-=item B<ansi_pair>(I<color_spec>)
-
-Produces introducer and recover sequences for given spec. Recover
-sequence includes I<Erase Line> related control with simple SGR reset
-code.
 
 =item B<csi_code>(I<name>, I<params>)
 
@@ -542,20 +464,23 @@ numeric parameters.  Parameter I<name> is one of standard (CUU, CUD,
 CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, SU, SD, HVP, SGR, SCP, RCP) or
 non-standard (RIS, DECSC, DECRC).
 
-=item B<colortable>([I<width>])
-
-Print visual 256 color matrix table on the screen.  Default I<width>
-is 144.  Use like this:
-
-    perl -MGetopt::EX::Colormap=colortable -e colortable
-
 =back
+
 
 =head1 COLOR SPEC
 
-Color specification is a combination of single uppercase character
-representing 8 colors, and alternative (usually brighter) colors in
-lowercase :
+At first the color is considered as foreground, and slash (C</>)
+switches foreground and background.  You can declare any number of
+components in arbitrary order, and sequences will be produced in the
+order or their presence.  So if they conflicts, the later one
+overrides the earlier.
+
+Color specification is a combination of following components:
+
+=head2 BASIC 8+8
+
+Single uppercase character representing 8 colors, and alternative
+(usually brighter) colors in lowercase :
 
     R  r  Red
     G  g  Green
@@ -566,29 +491,9 @@ lowercase :
     K  k  Black
     W  w  White
 
-or RGB values and 24 grey levels if using ANSI 256 or full color
-terminal :
+=head2 EFFECTS and CONTROLS
 
-    (255,255,255)      : 24bit decimal RGB colors
-    #000000 .. #FFFFFF : 24bit hex RGB colors
-    #000    .. #FFF    : 12bit hex RGB 4096 colors
-    000 .. 555         : 6x6x6 RGB 216 colors
-    L00 .. L25         : Black (L00), 24 grey levels, White (L25)
-
-=over 4
-
-Beginning C<#> can be omitted in 24bit hex RGB notation.  So 6
-consecutive digits means 24bit color, and 3 digits means 6x6x6 color.
-
-=back
-
-or color names enclosed by angle bracket :
-
-    <red> <blue> <green> <cyan> <magenta> <yellow>
-    <aliceblue> <honeydue> <hotpink> <mooccasin>
-    <medium_aqua_marine>
-
-with other special effects :
+Single case-insensitive chracter for special effects :
 
     N    None
     Z  0 Zero (reset)
@@ -602,45 +507,79 @@ with other special effects :
     H  8 Hide (conceal)
     X  9 Cross out
 
-    E    Erase Line
+    E    Erase Line (fill by background color)
 
     ;    No effect
     /    Toggle foreground/background
     ^    Reset to foreground
     ~    Cancel following effect
 
-At first the color is considered as foreground, and slash (C</>)
-switches foreground and background.  If multiple colors are given in
-the same spec, all indicators are produced in the order of their
-presence.  Consequently, the last one takes effect.
+Tilde (C<~>) negates following effect; C<~S> reset the effect of C<S>.
+There is a discussion about negation of C<D> (Track Wikipedia link in
+SEE ALSO), and Apple_Terminal (v2.10 433) does not reset at least.
 
-If the character is preceded by tilde (C<~>), it means negation of
-following effect; C<~S> reset the effect of C<S>.  There is a
-discussion about negation of C<D> (Track Wikipedia link in SEE ALSO),
-and Apple_Terminal (v2.10 433) does not reset at least.
+Single C<E> is an abbreviation for "{EL}" (Erase Line).  This is
+different from other attributes, but have an effect of painting the
+rest of line by background color.
 
-Effect characters are case insensitive, and can be found anywhere and
-in any order in color spec string.  Character C<;> does nothing and
-can be used just for readability, like C<SD;K/544>.
+=head2 6x6x6 216 COLORS
 
-Samples:
+Combination of 0..5 for 216 RGB values :
 
-    RGB  6x6x6    12bit      24bit           color name
-    ===  =======  =========  =============  ==================
-    B    005      #00F       (0,0,255)      <blue>
-     /M     /505      /#F0F   /(255,0,255)  /<magenta>
-    K/W  000/555  #000/#FFF  000000/FFFFFF  <black>/<white>
-    R/G  500/050  #F00/#0F0  FF0000/00FF00  <red>/<green>
-    W/w  L03/L20  #333/#ccc  303030/c6c6c6  <dimgrey>/<lightgrey>
+    Deep          Light
+    <----------------->
+    000 111 222 333 444 : Black
+    500 511 522 533 544 : Red
+    050 151 252 353 454 : Green
+    005 115 225 335 445 : Blue
+    055 155 255 355 455 : Cyan
+    505 515 525 535 545 : Magenta
+    550 551 552 553 554 : Yellow
+    555 444 333 222 111 : White
 
-Character "E" is an abbreviation for "{EL}", and it clears the line
-from cursor to the end of the line.  At this time, background color is
-set to the area.  When this code is found in the start sequence, it is
-copied to just before ending reset sequence, with preceding sequence
-if necessary, to keep the effect even when the text is wrapped to
-multiple lines.
+=head2 24 GRAY SCALES + 2
 
-Other ANSI CSI sequences are also available in the form of C<{NAME}>.
+24 gray scales are described by C<L01> (dark) to C<L24> (bright).
+Black and White can be described as C<L00> and C<L25> but they do not
+produce gray scale sequence.
+
+    L00 : Level  0 (Black)
+    L01 : Level  1
+     :
+    L24 : Level 24
+    L25 : Level 25 (White)
+
+=head2 RGB
+
+12bit/24bit RGB :
+
+    (255,255,255)      : 24bit decimal RGB colors
+    #000000 .. #FFFFFF : 24bit hex RGB colors
+    #000    .. #FFF    : 12bit hex RGB 4096 colors
+
+=over 4
+
+Beginning C<#> can be omitted in 24bit hex RGB notation.  So 6
+consecutive digits means 24bit color, and 3 digits means 6x6x6 color,
+if they do not begin with C<#>.
+
+=back
+
+=head2 COLOR NAMES
+
+Color names enclosed by angle bracket :
+
+    <red> <blue> <green> <cyan> <magenta> <yellow>
+    <aliceblue> <honeydue> <hotpink> <mooccasin>
+    <medium_aqua_marine>
+
+These colors are defined in 24bit RGB.  See L</COLOR NAMES> section
+for detail.
+
+=head2 CSI SEQUENCES and OTHERS
+
+Native CSI (Control Sequence Introducer) sequences in the form of
+C<{NAME}>.
 
     CUU n   Cursor up
     CUD n   Cursor Down
@@ -659,17 +598,27 @@ Other ANSI CSI sequences are also available in the form of C<{NAME}>.
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 
-These name accept following optional numerical parameters, using comma
-(',') or semicolon (';') to separate multiple ones, with optional
-braces.  For example, color spec C<DK/544> can be described as
-C<{SGR1;30;48;5;224}> or more readable C<{SGR(1,30,48,5,224)}>.
+These names accept following optional numerical parameters, using
+comma (',') or semicolon (';') to separate multiple ones, with
+optional braces.  For example, color spec C<DK/544> can be described
+as C<{SGR1;30;48;5;224}> or more readable C<{SGR(1,30,48,5,224)}>.
 
 Some other escape sequences are supported in the form of C<{NAME}>.
-These sequences do not start with CSI, and take no parameters.
+These sequences do not start with CSI, and do not take parameters.
 
     RIS     Reset to Initial State
     DECSC   DEC Save Cursor
     DECRC   DEC Restore Cursor
+
+=head2 EXAMPLES
+
+    RGB  6x6x6    12bit      24bit            color name
+    ===  =======  =========  =============    ==================
+    B    005      #00F       (0,0,255)        <blue>
+     /M     /505      /#F0F     /(255,0,255)  /<magenta>
+    K/W  000/555  #000/#FFF  #000000/#FFFFFF  <black>/<white>
+    R/G  500/050  #F00/#0F0  #FF0000/#00FF00  <red>/<green>
+    W/w  L03/L20  #333/#ccc  #303030/#c6c6c6  <dimgray>/<lightgray>
 
 =head1 COLOR NAMES
 
@@ -757,9 +706,6 @@ Enclose them by angle bracket to use, like:
 
     <deeppink>/<lightyellow>
 
-Although these colors are defined in 24bit value, they are mapped to
-6x6x6 216 colors by default.  Set C<$RGB24> module variable to use
-24bit color mode.
 
 =head1 FUNCTION SPEC
 
@@ -768,37 +714,6 @@ called with text as an argument, and return the result.
 
 If it is an object which has method C<call>, it is called with the
 variable C<$_> set as target text.
-
-=head1 EXAMPLE
-
-If you want to use this module instead of L<Term::ANSIColor>, this
-example code
-
-    use Term::ANSIColor;
-    print color 'bold blue';
-    print "This text is bold blue.\n";
-    print color 'reset';
-    print "This text is normal.\n";
-    print colored("Yellow on magenta.", 'yellow on_magenta'), "\n";
-    print "This text is normal.\n";
-    print colored ['yellow on_magenta'], 'Yellow on magenta.', "\n";
-    print colored ['red on_bright_yellow'], 'Red on bright yellow.', "\n";
-    print colored ['bright_red on_black'], 'Bright red on black.', "\n";
-    print "\n";
-
-can be written with L<Getopt::EX::Colormap> like:
-
-    use Text::ANSI::Concise qw(colorize ansi_code);
-    print ansi_code 'DB';
-    print "This text is bold blue.\n";
-    print ansi_code 'Z';
-    print "This text is normal.\n";
-    print colorize('Y/M', "Yellow on magenta."), "\n";
-    print "This text is normal.\n";
-    print colorize('Y/M', 'Yellow on magenta.'), "\n";
-    print colorize('R/y', 'Red on bright yellow.'), "\n";
-    print colorize('r/K', 'Bright red on black.'), "\n";
-    print "\n";
 
 
 =head1 RESET SEQUENCE
@@ -813,7 +728,19 @@ sequence clear the text on the cursor position when it is at the
 rightmost column of the screen.  In other words, rightmost character
 sometimes mysteriously disappear when it is the last character in the
 colored region.  If you do not like this behavior, set module variable
-C<$NO_RESET_EL> or C<GETOPTEX_NO_RESET_EL> environment.
+C<$NO_RESET_EL> or C<ANSICOLOR_NO_RESET_EL> environment.
+
+
+=head1 ERASE LINE
+
+Erase line sequence "{EL}" clears the line from cursor to the end of
+the line.  At this time, background color is set to the area.  When
+this code is explicitly found in the start sequence, it is copied to
+just before ending reset sequence, with preceding sequence if
+necessary, to keep the effect even when the text is wrapped to
+multiple lines.
+
+See L</ENVIRONMENT> section.
 
 
 =head1 ENVIRONMENT
@@ -823,17 +750,16 @@ value, colorizing interface in this module never produce color
 sequence.  Primitive function such as C<ansi_code> is not the case.
 See L<https://no-color.org/>.
 
-If the module variable C<$NO_NO_COLOR> or C<GETOPTEX_NO_NO_COLOR>
+If the module variable C<$NO_NO_COLOR> or C<ANSICOLOR_NO_NO_COLOR>
 environment is true, C<NO_COLOR> value is ignored.
 
-B<color> method and B<colorize> function produces 256 or 24bit colors
-depending on the value of C<$RGB24> module variable.  Also 24bit mode
-is enabled when environment C<GETOPTEX_RGB24> is set or C<COLORTERM>
-is C<truecolor>.
+Function B<ansi_color> produces 256 or 24bit colors depending on the
+value of C<$RGB24> module variable.  Also 24bit mode is enabled when
+environment C<ANSICOLOR_RGB24> is set or C<COLORTERM> is C<truecolor>.
 
-If the module variable C<$NO_RESET_EL> set, or C<GETOPTEX_NO_RESET_EL>
-environment, I<Erace Line> sequence is not produced after RESET code.
-See L<RESET SEQUENCE>.
+If the module variable C<$NO_RESET_EL> set, or
+C<ANSICOLOR_NO_RESET_EL> environment, I<Erase Line> sequence is not
+re-produced after RESET code.  See L<RESET SEQUENCE>.
 
 
 =head1 SEE ALSO
@@ -846,9 +772,16 @@ L<https://en.wikipedia.org/wiki/X11_color_names>
 
 L<https://no-color.org/>
 
+https://www.ecma-international.org/wp-content/uploads/ECMA-48_5th_edition_june_1991.pdf
+
+L<Getopt::EX::Colormap>
+
+L<App::ansiecho>
+
 =head1 AUTHOR
 
 Kazumasa Utashiro
+
 
 =head1 COPYRIGHT
 
@@ -857,6 +790,7 @@ this distribution, including binary files, unless explicitly noted
 otherwise.
 
 Copyright 2015-2022 Kazumasa Utashiro
+
 
 =head1 LICENSE
 

@@ -1,5 +1,5 @@
 {
-   "abstract" : "Produce ANSI terminal sequence with concise notation",
+   "abstract" : "Produce ANSI terminal sequence by concise notation",
    "author" : [
       "Kazumasa Utashiro"
    ],
@@ -12,7 +12,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : 2
    },
-   "name" : "Text-ANSI-Concise",
+   "name" : "Term-ANSIColor-Concise",
    "no_index" : {
       "directory" : [
          "t",

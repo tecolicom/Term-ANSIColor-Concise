@@ -1,20 +1,26 @@
 
 # NAME
 
-Text::ANSI::Concise - Produce ANSI terminal sequence with concise notation
+Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
 # SYNOPSIS
 
-    use Text::ANSI::Concise qw(colorize);
-    $text = colorize(SPEC, TEXT);
-    $text = colorize(SPEC_1, TEXT_1, SPEC_2, TEXT_2, ...);
+    use v5.14;
+    use Term::ANSIColor::Concise qw(ansi_color);
 
-    $ perl -MGetopt::EX::Colormap=colortable -e colortable
+    say ansi_color('R', 'This is Red');
+
+    say ansi_color('SDG', 'This is Reverse Bold Green');
+
+    say ansi_color('FUDI;B/L24E',
+                   'Flashing Underlined Bold Italic Blue on Gray24 bar');
 
 # DESCRIPTION
 
-It may be useful to give a simple uniform way to specify complicated
-colors.
+This module provides a simple concise format to describe complicated
+colors and effects for ANSI terminals.  They are supposed to be used
+in command line option parameters.  Easy interface is provided by
+[Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap) module.
 
 ## 256 or 24bit COLORS
 
@@ -22,32 +28,54 @@ By default, this library produces ANSI 256 color sequence.  That is
 eight standard colors, eight high intensity colors, 6x6x6 216 colors,
 and grayscales from black to white in 24 steps.
 
-Color can be described by 12bit/24bit RGB values but they are
-converted to 6x6x6 216 colors, or 24 greyscales if all RGB values are
-same.  To produce 24bit RGB color sequence, set `$RGB24` module
-variable or use appropiate environment.
+Color described by 12bit/24bit RGB values are converted to 6x6x6 216
+colors, or 24 grayscales if all RGB values are same.
+
+For a terminal which can display 24bit colors, full-color sequence is
+produce.  See ["ENVIRONMENT"](#environment) section.
 
 # FUNCTION
 
-- **colorize**(_color\_spec_, _text_)
-- **colorize24**(_color\_spec_, _text_)
+- **ansi\_color**(_spec_, _text_)
 
-    Return colorized version of given text.
+    Return colorized version of given text.  Produces 256 or 24bit colors
+    depending on the setting.
 
-    **colorize** produces 256 or 24bit colors depending on the setting,
-    while **colorize24** always produces 24bit color sequence for
-    24bit/12bit color spec.  See [ENVIRONMENT](https://metacpan.org/pod/ENVIRONMENT).
+    In the result, given _text_ is enclosed by appropriate open/close
+    sequences, but close sequence can be different according to the open
+    sequence.  See ["RESET SEQUENCE"](#reset-sequence) section.
+
+    If the _text_ already includes colored regions, they remain untouched
+    and only non-colored parts are colored.
+
+    Actually, _spec_ and _text_ pair can be repeated as many as
+    possible.  It is same as calling the function multiple times with
+    single pair and join results.
+
+- **ansi\_color**(\[ _spec1_, _spec2_, ... \], _text_)
+
+    If _spec_ parameter is ARRAYREF, multiple _spec_s can be specified
+    at once.  This is not useful for color spec because they can be simply
+    joined, but may be useful when mixed with ["FUNCTION SPEC"](#function-spec).
+
+- **ansi\_color\_24**(_spec_, _text_)
+- **ansi\_color\_24**(\[ _spec1_, _spec2_, ... \], _text_)
+
+    Function **ansi\_color\_24** always produces 24bit color sequence for
+    12bit/24bit color spec.
+
+- **ansi\_pair**(_color\_spec_)
+
+    Produces introducer and recover sequences for given spec.
+
+    Additional third value indicates if the introducer includes Erase Line
+    sequence.  It gives a hint the sequence is necessary for empty string.
+    See ["RESET SEQUENCE"](#reset-sequence).
 
 - **ansi\_code**(_color\_spec_)
 
     Produces introducer sequence for given spec.  Reset code can be taken
     by **ansi\_code("Z")**.
-
-- **ansi\_pair**(_color\_spec_)
-
-    Produces introducer and recover sequences for given spec. Recover
-    sequence includes _Erase Line_ related control with simple SGR reset
-    code.
 
 - **csi\_code**(_name_, _params_)
 
@@ -56,18 +84,20 @@ variable or use appropiate environment.
     CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, SU, SD, HVP, SGR, SCP, RCP) or
     non-standard (RIS, DECSC, DECRC).
 
-- **colortable**(\[_width_\])
-
-    Print visual 256 color matrix table on the screen.  Default _width_
-    is 144.  Use like this:
-
-        perl -MGetopt::EX::Colormap=colortable -e colortable
-
 # COLOR SPEC
 
-Color specification is a combination of single uppercase character
-representing 8 colors, and alternative (usually brighter) colors in
-lowercase :
+At first the color is considered as foreground, and slash (`/`)
+switches foreground and background.  You can declare any number of
+components in arbitrary order, and sequences will be produced in the
+order or their presence.  So if they conflicts, the later one
+overrides the earlier.
+
+Color specification is a combination of following components:
+
+## BASIC 8+8
+
+Single uppercase character representing 8 colors, and alternative
+(usually brighter) colors in lowercase :
 
     R  r  Red
     G  g  Green
@@ -78,25 +108,9 @@ lowercase :
     K  k  Black
     W  w  White
 
-or RGB values and 24 grey levels if using ANSI 256 or full color
-terminal :
+## EFFECTS and CONTROLS
 
-    (255,255,255)      : 24bit decimal RGB colors
-    #000000 .. #FFFFFF : 24bit hex RGB colors
-    #000    .. #FFF    : 12bit hex RGB 4096 colors
-    000 .. 555         : 6x6x6 RGB 216 colors
-    L00 .. L25         : Black (L00), 24 grey levels, White (L25)
-
-> Beginning `#` can be omitted in 24bit hex RGB notation.  So 6
-> consecutive digits means 24bit color, and 3 digits means 6x6x6 color.
-
-or color names enclosed by angle bracket :
-
-    <red> <blue> <green> <cyan> <magenta> <yellow>
-    <aliceblue> <honeydue> <hotpink> <mooccasin>
-    <medium_aqua_marine>
-
-with other special effects :
+Single case-insensitive chracter for special effects :
 
     N    None
     Z  0 Zero (reset)
@@ -110,45 +124,75 @@ with other special effects :
     H  8 Hide (conceal)
     X  9 Cross out
 
-    E    Erase Line
+    E    Erase Line (fill by background color)
 
     ;    No effect
     /    Toggle foreground/background
     ^    Reset to foreground
     ~    Cancel following effect
 
-At first the color is considered as foreground, and slash (`/`)
-switches foreground and background.  If multiple colors are given in
-the same spec, all indicators are produced in the order of their
-presence.  Consequently, the last one takes effect.
+Tilde (`~`) negates following effect; `~S` reset the effect of `S`.
+There is a discussion about negation of `D` (Track Wikipedia link in
+SEE ALSO), and Apple\_Terminal (v2.10 433) does not reset at least.
 
-If the character is preceded by tilde (`~`), it means negation of
-following effect; `~S` reset the effect of `S`.  There is a
-discussion about negation of `D` (Track Wikipedia link in SEE ALSO),
-and Apple\_Terminal (v2.10 433) does not reset at least.
+Single `E` is an abbreviation for "{EL}" (Erase Line).  This is
+different from other attributes, but have an effect of painting the
+rest of line by background color.
 
-Effect characters are case insensitive, and can be found anywhere and
-in any order in color spec string.  Character `;` does nothing and
-can be used just for readability, like `SD;K/544`.
+## 6x6x6 216 COLORS
 
-Samples:
+Combination of 0..5 for 216 RGB values :
 
-    RGB  6x6x6    12bit      24bit           color name
-    ===  =======  =========  =============  ==================
-    B    005      #00F       (0,0,255)      <blue>
-     /M     /505      /#F0F   /(255,0,255)  /<magenta>
-    K/W  000/555  #000/#FFF  000000/FFFFFF  <black>/<white>
-    R/G  500/050  #F00/#0F0  FF0000/00FF00  <red>/<green>
-    W/w  L03/L20  #333/#ccc  303030/c6c6c6  <dimgrey>/<lightgrey>
+    Deep          Light
+    <----------------->
+    000 111 222 333 444 : Black
+    500 511 522 533 544 : Red
+    050 151 252 353 454 : Green
+    005 115 225 335 445 : Blue
+    055 155 255 355 455 : Cyan
+    505 515 525 535 545 : Magenta
+    550 551 552 553 554 : Yellow
+    555 444 333 222 111 : White
 
-Character "E" is an abbreviation for "{EL}", and it clears the line
-from cursor to the end of the line.  At this time, background color is
-set to the area.  When this code is found in the start sequence, it is
-copied to just before ending reset sequence, with preceding sequence
-if necessary, to keep the effect even when the text is wrapped to
-multiple lines.
+## 24 GRAY SCALES + 2
 
-Other ANSI CSI sequences are also available in the form of `{NAME}`.
+24 gray scales are described by `L01` (dark) to `L24` (bright).
+Black and White can be described as `L00` and `L25` but they do not
+produce gray scale sequence.
+
+    L00 : Level  0 (Black)
+    L01 : Level  1
+     :
+    L24 : Level 24
+    L25 : Level 25 (White)
+
+## RGB
+
+12bit/24bit RGB :
+
+    (255,255,255)      : 24bit decimal RGB colors
+    #000000 .. #FFFFFF : 24bit hex RGB colors
+    #000    .. #FFF    : 12bit hex RGB 4096 colors
+
+> Beginning `#` can be omitted in 24bit hex RGB notation.  So 6
+> consecutive digits means 24bit color, and 3 digits means 6x6x6 color,
+> if they do not begin with `#`.
+
+## COLOR NAMES
+
+Color names enclosed by angle bracket :
+
+    <red> <blue> <green> <cyan> <magenta> <yellow>
+    <aliceblue> <honeydue> <hotpink> <mooccasin>
+    <medium_aqua_marine>
+
+These colors are defined in 24bit RGB.  See ["COLOR NAMES"](#color-names) section
+for detail.
+
+## CSI SEQUENCES and OTHERS
+
+Native CSI (Control Sequence Introducer) sequences in the form of
+`{NAME}`.
 
     CUU n   Cursor up
     CUD n   Cursor Down
@@ -167,17 +211,27 @@ Other ANSI CSI sequences are also available in the form of `{NAME}`.
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 
-These name accept following optional numerical parameters, using comma
-(',') or semicolon (';') to separate multiple ones, with optional
-braces.  For example, color spec `DK/544` can be described as
-`{SGR1;30;48;5;224}` or more readable `{SGR(1,30,48,5,224)}`.
+These names accept following optional numerical parameters, using
+comma (',') or semicolon (';') to separate multiple ones, with
+optional braces.  For example, color spec `DK/544` can be described
+as `{SGR1;30;48;5;224}` or more readable `{SGR(1,30,48,5,224)}`.
 
 Some other escape sequences are supported in the form of `{NAME}`.
-These sequences do not start with CSI, and take no parameters.
+These sequences do not start with CSI, and do not take parameters.
 
     RIS     Reset to Initial State
     DECSC   DEC Save Cursor
     DECRC   DEC Restore Cursor
+
+## EXAMPLES
+
+    RGB  6x6x6    12bit      24bit            color name
+    ===  =======  =========  =============    ==================
+    B    005      #00F       (0,0,255)        <blue>
+     /M     /505      /#F0F     /(255,0,255)  /<magenta>
+    K/W  000/555  #000/#FFF  #000000/#FFFFFF  <black>/<white>
+    R/G  500/050  #F00/#0F0  #FF0000/#00FF00  <red>/<green>
+    W/w  L03/L20  #333/#ccc  #303030/#c6c6c6  <dimgray>/<lightgray>
 
 # COLOR NAMES
 
@@ -265,10 +319,6 @@ Enclose them by angle bracket to use, like:
 
     <deeppink>/<lightyellow>
 
-Although these colors are defined in 24bit value, they are mapped to
-6x6x6 216 colors by default.  Set `$RGB24` module variable to use
-24bit color mode.
-
 # FUNCTION SPEC
 
 Color spec can be CODEREF or object.  If it is a CODEREF, that code is
@@ -276,37 +326,6 @@ called with text as an argument, and return the result.
 
 If it is an object which has method `call`, it is called with the
 variable `$_` set as target text.
-
-# EXAMPLE
-
-If you want to use this module instead of [Term::ANSIColor](https://metacpan.org/pod/Term%3A%3AANSIColor), this
-example code
-
-    use Term::ANSIColor;
-    print color 'bold blue';
-    print "This text is bold blue.\n";
-    print color 'reset';
-    print "This text is normal.\n";
-    print colored("Yellow on magenta.", 'yellow on_magenta'), "\n";
-    print "This text is normal.\n";
-    print colored ['yellow on_magenta'], 'Yellow on magenta.', "\n";
-    print colored ['red on_bright_yellow'], 'Red on bright yellow.', "\n";
-    print colored ['bright_red on_black'], 'Bright red on black.', "\n";
-    print "\n";
-
-can be written with [Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap) like:
-
-    use Text::ANSI::Concise qw(colorize ansi_code);
-    print ansi_code 'DB';
-    print "This text is bold blue.\n";
-    print ansi_code 'Z';
-    print "This text is normal.\n";
-    print colorize('Y/M', "Yellow on magenta."), "\n";
-    print "This text is normal.\n";
-    print colorize('Y/M', 'Yellow on magenta.'), "\n";
-    print colorize('R/y', 'Red on bright yellow.'), "\n";
-    print colorize('r/K', 'Bright red on black.'), "\n";
-    print "\n";
 
 # RESET SEQUENCE
 
@@ -320,7 +339,18 @@ sequence clear the text on the cursor position when it is at the
 rightmost column of the screen.  In other words, rightmost character
 sometimes mysteriously disappear when it is the last character in the
 colored region.  If you do not like this behavior, set module variable
-`$NO_RESET_EL` or `GETOPTEX_NO_RESET_EL` environment.
+`$NO_RESET_EL` or `ANSICOLOR_NO_RESET_EL` environment.
+
+# ERASE LINE
+
+Erase line sequence "{EL}" clears the line from cursor to the end of
+the line.  At this time, background color is set to the area.  When
+this code is explicitly found in the start sequence, it is copied to
+just before ending reset sequence, with preceding sequence if
+necessary, to keep the effect even when the text is wrapped to
+multiple lines.
+
+See ["ENVIRONMENT"](#environment) section.
 
 # ENVIRONMENT
 
@@ -329,17 +359,16 @@ value, colorizing interface in this module never produce color
 sequence.  Primitive function such as `ansi_code` is not the case.
 See [https://no-color.org/](https://no-color.org/).
 
-If the module variable `$NO_NO_COLOR` or `GETOPTEX_NO_NO_COLOR`
+If the module variable `$NO_NO_COLOR` or `ANSICOLOR_NO_NO_COLOR`
 environment is true, `NO_COLOR` value is ignored.
 
-**color** method and **colorize** function produces 256 or 24bit colors
-depending on the value of `$RGB24` module variable.  Also 24bit mode
-is enabled when environment `GETOPTEX_RGB24` is set or `COLORTERM`
-is `truecolor`.
+Function **ansi\_color** produces 256 or 24bit colors depending on the
+value of `$RGB24` module variable.  Also 24bit mode is enabled when
+environment `ANSICOLOR_RGB24` is set or `COLORTERM` is `truecolor`.
 
-If the module variable `$NO_RESET_EL` set, or `GETOPTEX_NO_RESET_EL`
-environment, _Erace Line_ sequence is not produced after RESET code.
-See ["RESET SEQUENCE"](#reset-sequence).
+If the module variable `$NO_RESET_EL` set, or
+`ANSICOLOR_NO_RESET_EL` environment, _Erase Line_ sequence is not
+re-produced after RESET code.  See ["RESET SEQUENCE"](#reset-sequence).
 
 # SEE ALSO
 
@@ -350,6 +379,12 @@ See ["RESET SEQUENCE"](#reset-sequence).
 [https://en.wikipedia.org/wiki/X11\_color\_names](https://en.wikipedia.org/wiki/X11_color_names)
 
 [https://no-color.org/](https://no-color.org/)
+
+https://www.ecma-international.org/wp-content/uploads/ECMA-48\_5th\_edition\_june\_1991.pdf
+
+[Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap)
+
+[App::ansiecho](https://metacpan.org/pod/App%3A%3Aansiecho)
 
 # AUTHOR
 
