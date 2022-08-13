@@ -2,5 +2,5 @@ Revision history for Perl extension Text-ANSI-Concise
 
 {{$NEXT}}
 
-    - original version
+    - Spin off from Getopt::EX::Colomap
 
