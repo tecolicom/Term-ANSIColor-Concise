@@ -42,6 +42,7 @@
       },
       "runtime" : {
          "requires" : {
+            "Graphics::ColorNames" : "0",
             "perl" : "v5.14.0"
          }
       },
@@ -52,6 +53,17 @@
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/kaz-utashiro/Term-ANSIColor-Concise/issues"
+      },
+      "homepage" : "https://github.com/kaz-utashiro/Term-ANSIColor-Concise",
+      "repository" : {
+         "type" : "git",
+         "url" : "https://github.com/kaz-utashiro/Term-ANSIColor-Concise.git",
+         "web" : "https://github.com/kaz-utashiro/Term-ANSIColor-Concise"
+      }
+   },
    "version" : "v1.28.0",
    "x_authority" : "cpan:UTASHIRO",
    "x_contributors" : [

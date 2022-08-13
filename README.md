@@ -1,4 +1,4 @@
-
+[![Actions Status](https://github.com/kaz-utashiro/Term-ANSIColor-Concise/actions/workflows/test.yml/badge.svg)](https://github.com/kaz-utashiro/Term-ANSIColor-Concise/actions)
 # NAME
 
 Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
