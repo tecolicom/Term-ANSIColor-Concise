@@ -123,30 +123,15 @@ is(ansi_code("{SGR(1,30,48,5,224)}"), "\e[1;30;48;5;224m", "{SGR(...)}");
 like(ansi_end("DK/544E"), qr/^\e\[?K/, "E before RESET");
 like(ansi_end("DK/544{EL}"), qr/^\e\[?K/, "{EL} before RESET");
 
-SKIP: {
-    eval {
-	is(ansi_code("<moccasin>"), "\e\[38;5;223m",
-	   "color name (<moccasin>)");
-    };
-    skip $@ =~ s/\)\K.*//r if $@;
-}
+is(ansi_code("<moccasin>"), "\e\[38;5;223m",
+   "color name (<moccasin>)");
 
-SKIP: {
-    eval {
-	rgb24 {
-	    is(ansi_code("<moccasin>"), "\e[38;2;255;228;181m",
-	       "<moccasin> 24bit");
-	};
-    };
-    skip $@ =~ s/\)\K.*//r if $@;
-}
+rgb24 {
+    is(ansi_code("<moccasin>"), "\e[38;2;255;228;181m",
+       "<moccasin> 24bit");
+};
 
-SKIP: {
-    eval {
-	is(ansi_code("<fuchsia>"), "\e\[38;5;201m", "color name (<fuchsia>)");
-    };
-    skip $@ =~ s/\)\K.*//r, 1 if $@;
-}
+is(ansi_code("<fuchsia>"), "\e\[38;5;201m", "color name (<fuchsia>)");
 
 SKIP: {
     eval {
