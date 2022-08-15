@@ -372,6 +372,42 @@ re-produced after RESET code.  See ["RESET SEQUENCE"](#reset-sequence).
 
 # SEE ALSO
 
+## [Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap)
+
+This module is originally implemented in [Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap)
+module.  It provides an easy way to maintain labeled and indexed list
+for color handling in command line option.
+
+You can take care of user option like this:
+
+    use Getopt::Long;
+    my @opt_colormap;
+    GetOptions('colormap|cm:s' => @opt_colormap);
+    
+    require Getopt::EX::Colormap;
+    my %label = ( FILE => 'DR', LINE => 'Y', TEXT => '' );
+    my @index = qw( /544 /545 /445 /455 /545 /554 );
+    my $cm = Getopt::EX::Colormap
+        ->new(HASH => \%label, LIST => \@index)
+        ->load_params(@opt_colormap);  
+
+And then program can use it in two ways:
+
+    print $cm->color('FILE', $filename);
+
+    print $cm->index_color($index, $pattern);
+
+This interface provides a simple uniform way to handle coloring
+options for various tools.
+
+## [App::ansiecho](https://metacpan.org/pod/App%3A%3Aansiecho)
+
+To use this module's function directly from a command line,
+[App::ansiecho](https://metacpan.org/pod/App%3A%3Aansiecho) is a good one.  You can apply colors and effects for
+echoing argument.
+
+## OTHERS
+
 [https://en.wikipedia.org/wiki/ANSI\_escape\_code](https://en.wikipedia.org/wiki/ANSI_escape_code)
 
 [Graphics::ColorNames::X](https://metacpan.org/pod/Graphics%3A%3AColorNames%3A%3AX)
@@ -381,10 +417,6 @@ re-produced after RESET code.  See ["RESET SEQUENCE"](#reset-sequence).
 [https://no-color.org/](https://no-color.org/)
 
 https://www.ecma-international.org/wp-content/uploads/ECMA-48\_5th\_edition\_june\_1991.pdf
-
-[Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap)
-
-[App::ansiecho](https://metacpan.org/pod/App%3A%3Aansiecho)
 
 # AUTHOR
 

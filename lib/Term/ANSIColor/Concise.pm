@@ -9,6 +9,7 @@ use Exporter 'import';
 our @EXPORT      = qw();
 our @EXPORT_OK   = qw(
     ansi_color ansi_color_24 ansi_code ansi_pair csi_code
+    cached_ansi_color
     map_256_to_6 map_to_256
     );
 our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
@@ -764,6 +765,42 @@ re-produced after RESET code.  See L<RESET SEQUENCE>.
 
 =head1 SEE ALSO
 
+=head2 L<Getopt::EX::Colormap>
+
+This module is originally implemented in L<Getopt::EX::Colormap>
+module.  It provides an easy way to maintain labeled and indexed list
+for color handling in command line option.
+
+You can take care of user option like this:
+
+    use Getopt::Long;
+    my @opt_colormap;
+    GetOptions('colormap|cm:s' => @opt_colormap);
+    
+    require Getopt::EX::Colormap;
+    my %label = ( FILE => 'DR', LINE => 'Y', TEXT => '' );
+    my @index = qw( /544 /545 /445 /455 /545 /554 );
+    my $cm = Getopt::EX::Colormap
+        ->new(HASH => \%label, LIST => \@index)
+        ->load_params(@opt_colormap);  
+
+And then program can use it in two ways:
+
+    print $cm->color('FILE', $filename);
+
+    print $cm->index_color($index, $pattern);
+
+This interface provides a simple uniform way to handle coloring
+options for various tools.
+
+=head2 L<App::ansiecho>
+
+To use this module's function directly from a command line,
+L<App::ansiecho> is a good one.  You can apply colors and effects for
+echoing argument.
+
+=head2 OTHERS
+
 L<https://en.wikipedia.org/wiki/ANSI_escape_code>
 
 L<Graphics::ColorNames::X>
@@ -773,10 +810,6 @@ L<https://en.wikipedia.org/wiki/X11_color_names>
 L<https://no-color.org/>
 
 https://www.ecma-international.org/wp-content/uploads/ECMA-48_5th_edition_june_1991.pdf
-
-L<Getopt::EX::Colormap>
-
-L<App::ansiecho>
 
 =head1 AUTHOR
 
