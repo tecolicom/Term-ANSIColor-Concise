@@ -389,21 +389,29 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
   say ansi_color('SDG', 'This is Reverse Bold Green');
 
-  say ansi_color('FUDI;B/L24E',
-                 'Flashing Underlined Bold Italic Blue on Gray24 bar');
+  say ansi_color('FUDI<Gold>/L10E',
+                 'Flashing Underlined Bold Italic Gold on Gray10 Bar');
+
+=begin html
+
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/synopsis.png">
+
+=end html
 
 =head1 DESCRIPTION
 
 This module provides a simple concise format to describe complicated
-colors and effects for ANSI terminals.  They are supposed to be used
-in command line option parameters.  Easy interface is provided by
-L<Getopt::EX::Colormap> module.
+colors and effects for ANSI terminals.  These notaions are supposed to
+be used in command line option parameters.
+
+This module used to be a part of L<Getopt::EX::Colormap> module, which
+provide easy handling interface for command line options.
 
 =head2 256 or 24bit COLORS
 
 By default, this library produces ANSI 256 color sequence.  That is
 eight standard colors, eight high intensity colors, 6x6x6 216 colors,
-and grayscales from black to white in 24 steps.
+and grayscales in 24 steps.
 
 Color described by 12bit/24bit RGB values are converted to 6x6x6 216
 colors, or 24 grayscales if all RGB values are same.
@@ -422,8 +430,8 @@ Return colorized version of given text.  Produces 256 or 24bit colors
 depending on the setting.
 
 In the result, given I<text> is enclosed by appropriate open/close
-sequences, but close sequence can be different according to the open
-sequence.  See L</RESET SEQUENCE> section.
+sequences.  Close sequence can vary according to the open sequence.
+See L</RESET SEQUENCE> section.
 
 If the I<text> already includes colored regions, they remain untouched
 and only non-colored parts are colored.
@@ -444,6 +452,12 @@ joined, but may be useful when mixed with L</FUNCTION SPEC>.
 
 Function B<ansi_color_24> always produces 24bit color sequence for
 12bit/24bit color spec.
+
+=item B<cached_ansi_color>(I<cache>, I<spec>, I<text>)
+
+Backend interface for B<ansi_color>.  First parameter is a hash object
+used to cache data.  If you concern about cache mismatch situation,
+use this interface with original cache.
 
 =item B<ansi_pair>(I<color_spec>)
 
@@ -731,15 +745,12 @@ sometimes mysteriously disappear when it is the last character in the
 colored region.  If you do not like this behavior, set module variable
 C<$NO_RESET_EL> or C<ANSICOLOR_NO_RESET_EL> environment.
 
-
-=head1 ERASE LINE
-
-Erase line sequence "{EL}" clears the line from cursor to the end of
-the line.  At this time, background color is set to the area.  When
-this code is explicitly found in the start sequence, it is copied to
-just before ending reset sequence, with preceding sequence if
-necessary, to keep the effect even when the text is wrapped to
-multiple lines.
+Erase Line sequence "{EL}" clears the line from cursor position to the
+end of the line, which means filling the area by background color.
+When Erase Line is explicitly found in the start sequence, it is
+copied to just before (not after) ending reset sequence, with
+preceding sequence if necessary, to keep the effect even when the text
+is wrapped to multiple lines.
 
 See L</ENVIRONMENT> section.
 
@@ -751,6 +762,7 @@ value, colorizing interface in this module never produce color
 sequence.  Primitive function such as C<ansi_code> is not the case.
 See L<https://no-color.org/>.
 
+=for comment
 If the module variable C<$NO_NO_COLOR> or C<ANSICOLOR_NO_NO_COLOR>
 environment is true, C<NO_COLOR> value is ignored.
 
@@ -760,7 +772,7 @@ environment C<ANSICOLOR_RGB24> is set or C<COLORTERM> is C<truecolor>.
 
 If the module variable C<$NO_RESET_EL> set, or
 C<ANSICOLOR_NO_RESET_EL> environment, I<Erase Line> sequence is not
-re-produced after RESET code.  See L<RESET SEQUENCE>.
+produced with RESET code.  See L<RESET SEQUENCE>.
 
 
 =head1 SEE ALSO
@@ -798,6 +810,12 @@ options for various tools.
 To use this module's function directly from a command line,
 L<App::ansiecho> is a good one.  You can apply colors and effects for
 echoing argument.
+
+=head2 L<App::Greple>
+
+This code and L<Getopt::EX> was implemented as a part of
+L<App::Greple> command originally.  It is still a intensive user of
+this module capability and would be a good use-case.
 
 =head2 OTHERS
 

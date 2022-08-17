@@ -140,6 +140,8 @@ Term::ANSIColor::Concise::Table - Print color table
 
 =head1 DESCRIPTION
 
+Print color matrix tables.
+
 =head1 FUNCTION
 
 =over 4
@@ -157,13 +159,13 @@ is 144.  Use like this:
 
 =item B<colortable24>
 
-Print 6x6, 12x12, 24x24 martix tables.  Use like this:
+Print 6x6, 12x12, 24x24 24bit color martix tables.
+
+Use like this:
 
     perl -MTerm::ANSIColor::Concise::Table=:all -e colortable6
 
 =back
-
-=head1 SEE ALSO
 
 =head1 AUTHOR
 

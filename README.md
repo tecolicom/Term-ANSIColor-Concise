@@ -12,21 +12,27 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
     say ansi_color('SDG', 'This is Reverse Bold Green');
 
-    say ansi_color('FUDI;B/L24E',
-                   'Flashing Underlined Bold Italic Blue on Gray24 bar');
+    say ansi_color('FUDI<Gold>/L10E',
+                   'Flashing Underlined Bold Italic Gold on Gray10 Bar');
+
+<div>
+    <p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/synopsis.png">
+</div>
 
 # DESCRIPTION
 
 This module provides a simple concise format to describe complicated
-colors and effects for ANSI terminals.  They are supposed to be used
-in command line option parameters.  Easy interface is provided by
-[Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap) module.
+colors and effects for ANSI terminals.  These notaions are supposed to
+be used in command line option parameters.
+
+This module used to be a part of [Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap) module, which
+provide easy handling interface for command line options.
 
 ## 256 or 24bit COLORS
 
 By default, this library produces ANSI 256 color sequence.  That is
 eight standard colors, eight high intensity colors, 6x6x6 216 colors,
-and grayscales from black to white in 24 steps.
+and grayscales in 24 steps.
 
 Color described by 12bit/24bit RGB values are converted to 6x6x6 216
 colors, or 24 grayscales if all RGB values are same.
@@ -42,8 +48,8 @@ produce.  See ["ENVIRONMENT"](#environment) section.
     depending on the setting.
 
     In the result, given _text_ is enclosed by appropriate open/close
-    sequences, but close sequence can be different according to the open
-    sequence.  See ["RESET SEQUENCE"](#reset-sequence) section.
+    sequences.  Close sequence can vary according to the open sequence.
+    See ["RESET SEQUENCE"](#reset-sequence) section.
 
     If the _text_ already includes colored regions, they remain untouched
     and only non-colored parts are colored.
@@ -63,6 +69,12 @@ produce.  See ["ENVIRONMENT"](#environment) section.
 
     Function **ansi\_color\_24** always produces 24bit color sequence for
     12bit/24bit color spec.
+
+- **cached\_ansi\_color**(_cache_, _spec_, _text_)
+
+    Backend interface for **ansi\_color**.  First parameter is a hash object
+    used to cache data.  If you concern about cache mismatch situation,
+    use this interface with original cache.
 
 - **ansi\_pair**(_color\_spec_)
 
@@ -341,14 +353,12 @@ sometimes mysteriously disappear when it is the last character in the
 colored region.  If you do not like this behavior, set module variable
 `$NO_RESET_EL` or `ANSICOLOR_NO_RESET_EL` environment.
 
-# ERASE LINE
-
-Erase line sequence "{EL}" clears the line from cursor to the end of
-the line.  At this time, background color is set to the area.  When
-this code is explicitly found in the start sequence, it is copied to
-just before ending reset sequence, with preceding sequence if
-necessary, to keep the effect even when the text is wrapped to
-multiple lines.
+Erase Line sequence "{EL}" clears the line from cursor position to the
+end of the line, which means filling the area by background color.
+When Erase Line is explicitly found in the start sequence, it is
+copied to just before (not after) ending reset sequence, with
+preceding sequence if necessary, to keep the effect even when the text
+is wrapped to multiple lines.
 
 See ["ENVIRONMENT"](#environment) section.
 
@@ -359,16 +369,13 @@ value, colorizing interface in this module never produce color
 sequence.  Primitive function such as `ansi_code` is not the case.
 See [https://no-color.org/](https://no-color.org/).
 
-If the module variable `$NO_NO_COLOR` or `ANSICOLOR_NO_NO_COLOR`
-environment is true, `NO_COLOR` value is ignored.
-
 Function **ansi\_color** produces 256 or 24bit colors depending on the
 value of `$RGB24` module variable.  Also 24bit mode is enabled when
 environment `ANSICOLOR_RGB24` is set or `COLORTERM` is `truecolor`.
 
 If the module variable `$NO_RESET_EL` set, or
 `ANSICOLOR_NO_RESET_EL` environment, _Erase Line_ sequence is not
-re-produced after RESET code.  See ["RESET SEQUENCE"](#reset-sequence).
+produced with RESET code.  See ["RESET SEQUENCE"](#reset-sequence).
 
 # SEE ALSO
 
@@ -405,6 +412,12 @@ options for various tools.
 To use this module's function directly from a command line,
 [App::ansiecho](https://metacpan.org/pod/App%3A%3Aansiecho) is a good one.  You can apply colors and effects for
 echoing argument.
+
+## [App::Greple](https://metacpan.org/pod/App%3A%3AGreple)
+
+This code and [Getopt::EX](https://metacpan.org/pod/Getopt%3A%3AEX) was implemented as a part of
+[App::Greple](https://metacpan.org/pod/App%3A%3AGreple) command originally.  It is still a intensive user of
+this module capability and would be a good use-case.
 
 ## OTHERS
 
