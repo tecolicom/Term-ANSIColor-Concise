@@ -131,7 +131,6 @@ my %numbers = (
     Q => 6,		# Q : Quick (Blink: Rapid)
     S => 7,		# S : Stand out (Reverse)
     H => 8,		# H : Hide (Concealed)
-    V => 8,		# V : Vanish (Concealed)
     X => 9,		# X : Cross out
     K => 30, k => 90,	# K : Kuro (Black)
     R => 31, r => 91,	# R : Red  
@@ -152,7 +151,7 @@ my $colorspec_re = qr{
     | (?<c256>	 [0-5][0-5][0-5]	 # 216 (6x6x6) colors
 	     | L(?:[01][0-9]|[2][0-5]) ) # 24 gray levels + B/W
     | (?<c16>  [KRGYBMCW] )		 # 16 colors
-    | (?<efct> ~?[;NZDPIUFQSHVX] )	 # effects
+    | (?<efct> ~?[;NZDPIUFQSHX] )	 # effects
     | (?<csi>  { (?<csi_name>[A-Z]+)	 # other CSI
 		 (?<P> \( )?		 # optional (
 		 (?<csi_param>[\d,;]*)	 # 0;1;2
