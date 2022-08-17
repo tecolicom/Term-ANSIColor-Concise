@@ -775,6 +775,27 @@ C<ANSICOLOR_NO_RESET_EL> environment, I<Erase Line> sequence is not
 produced with RESET code.  See L<RESET SEQUENCE>.
 
 
+=head1 COLOR TABLE
+
+Color table can be shown by other module
+L<Term::ANSIColor::Concise::Table>.  Next command will show table of
+256 colors.
+
+  $ perl -MTerm::ANSIColor::Concise::Table=:all -e colortable
+
+=begin html
+
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable.png">
+
+=end html
+
+=begin html
+
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable-rev.png">
+
+=end html
+
+
 =head1 SEE ALSO
 
 =head2 L<Getopt::EX::Colormap>

@@ -377,6 +377,22 @@ If the module variable `$NO_RESET_EL` set, or
 `ANSICOLOR_NO_RESET_EL` environment, _Erase Line_ sequence is not
 produced with RESET code.  See ["RESET SEQUENCE"](#reset-sequence).
 
+# COLOR TABLE
+
+Color table can be shown by other module
+[Term::ANSIColor::Concise::Table](https://metacpan.org/pod/Term%3A%3AANSIColor%3A%3AConcise%3A%3ATable).  Next command will show table of
+256 colors.
+
+    $ perl -MTerm::ANSIColor::Concise::Table=:all -e colortable
+
+<div>
+    <p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable.png">
+</div>
+
+<div>
+    <p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable-rev.png">
+</div>
+
 # SEE ALSO
 
 ## [Getopt::EX::Colormap](https://metacpan.org/pod/Getopt%3A%3AEX%3A%3AColormap)
