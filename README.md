@@ -101,7 +101,7 @@ produce.  See ["ENVIRONMENT"](#environment) section.
 At first the color is considered as foreground, and slash (`/`)
 switches foreground and background.  You can declare any number of
 components in arbitrary order, and sequences will be produced in the
-order or their presence.  So if they conflicts, the later one
+order of their presence.  So if they conflicts, the later one
 overrides the earlier.
 
 Color specification is a combination of following components:
@@ -147,7 +147,7 @@ Tilde (`~`) negates following effect; `~S` reset the effect of `S`.
 There is a discussion about negation of `D` (Track Wikipedia link in
 SEE ALSO), and Apple\_Terminal (v2.10 433) does not reset at least.
 
-Single `E` is an abbreviation for "{EL}" (Erase Line).  This is
+Single `E` is an abbreviation for `{EL}` (Erase Line).  This is
 different from other attributes, but have an effect of painting the
 rest of line by background color.
 
@@ -169,8 +169,8 @@ Combination of 0..5 for 216 RGB values :
 ## 24 GRAY SCALES + 2
 
 24 gray scales are described by `L01` (dark) to `L24` (bright).
-Black and White can be described as `L00` and `L25` but they do not
-produce gray scale sequence.
+Black and White can be described as `L00` and `L25`, those are
+aliases for `000` and `555`.
 
     L00 : Level  0 (Black)
     L01 : Level  1
@@ -198,8 +198,10 @@ Color names enclosed by angle bracket :
     <aliceblue> <honeydue> <hotpink> <mooccasin>
     <medium_aqua_marine>
 
-These colors are defined in 24bit RGB.  See ["COLOR NAMES"](#color-names) section
-for detail.
+These colors are defined in 24bit RGB.  Names are case insensitive and
+underscore (<\_>) is ignored, but spaces and punctuations are not
+allowed.  So `aliceblue`, `AliceBlue`, `ALICE_BLUE` are valid but
+`Alice Blue` is not.  See ["COLOR NAMES"](#color-names) section for detail.
 
 ## CSI SEQUENCES and OTHERS
 
@@ -223,8 +225,8 @@ Native CSI (Control Sequence Introducer) sequences in the form of
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 
-These names accept following optional numerical parameters, using
-comma (',') or semicolon (';') to separate multiple ones, with
+These names can be followed by optional numerical parameters, using
+comma (`,`) or semicolon (`;`) to separate multiple ones, with
 optional braces.  For example, color spec `DK/544` can be described
 as `{SGR1;30;48;5;224}` or more readable `{SGR(1,30,48,5,224)}`.
 
@@ -343,7 +345,7 @@ variable `$_` set as target text.
 
 This module produces _RESET_ and _Erase Line_ sequence to recover
 from colored text.  This is preferable to clear background color set
-by scrolling in the middle of colored text at the bottom line of the
+by scrolling in the middle of colored text at the bottom of the
 terminal.
 
 However, on some terminal, including Apple\_Terminal, _Erase Line_
@@ -353,8 +355,8 @@ sometimes mysteriously disappear when it is the last character in the
 colored region.  If you do not like this behavior, set module variable
 `$NO_RESET_EL` or `ANSICOLOR_NO_RESET_EL` environment.
 
-Erase Line sequence "{EL}" clears the line from cursor position to the
-end of the line, which means filling the area by background color.
+Erase Line sequence `{EL}` clears the line from cursor position to
+the end of the line, which means filling the area by background color.
 When Erase Line is explicitly found in the start sequence, it is
 copied to just before (not after) ending reset sequence, with
 preceding sequence if necessary, to keep the effect even when the text

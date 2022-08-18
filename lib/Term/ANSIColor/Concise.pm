@@ -486,7 +486,7 @@ non-standard (RIS, DECSC, DECRC).
 At first the color is considered as foreground, and slash (C</>)
 switches foreground and background.  You can declare any number of
 components in arbitrary order, and sequences will be produced in the
-order or their presence.  So if they conflicts, the later one
+order of their presence.  So if they conflicts, the later one
 overrides the earlier.
 
 Color specification is a combination of following components:
@@ -532,7 +532,7 @@ Tilde (C<~>) negates following effect; C<~S> reset the effect of C<S>.
 There is a discussion about negation of C<D> (Track Wikipedia link in
 SEE ALSO), and Apple_Terminal (v2.10 433) does not reset at least.
 
-Single C<E> is an abbreviation for "{EL}" (Erase Line).  This is
+Single C<E> is an abbreviation for C<{EL}> (Erase Line).  This is
 different from other attributes, but have an effect of painting the
 rest of line by background color.
 
@@ -554,8 +554,8 @@ Combination of 0..5 for 216 RGB values :
 =head2 24 GRAY SCALES + 2
 
 24 gray scales are described by C<L01> (dark) to C<L24> (bright).
-Black and White can be described as C<L00> and C<L25> but they do not
-produce gray scale sequence.
+Black and White can be described as C<L00> and C<L25>, those are
+aliases for C<000> and C<555>.
 
     L00 : Level  0 (Black)
     L01 : Level  1
@@ -587,8 +587,10 @@ Color names enclosed by angle bracket :
     <aliceblue> <honeydue> <hotpink> <mooccasin>
     <medium_aqua_marine>
 
-These colors are defined in 24bit RGB.  See L</COLOR NAMES> section
-for detail.
+These colors are defined in 24bit RGB.  Names are case insensitive and
+underscore (<_>) is ignored, but spaces and punctuations are not
+allowed.  So C<aliceblue>, C<AliceBlue>, C<ALICE_BLUE> are valid but
+C<Alice Blue> is not.  See L</COLOR NAMES> section for detail.
 
 =head2 CSI SEQUENCES and OTHERS
 
@@ -612,8 +614,8 @@ C<{NAME}>.
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 
-These names accept following optional numerical parameters, using
-comma (',') or semicolon (';') to separate multiple ones, with
+These names can be followed by optional numerical parameters, using
+comma (C<,>) or semicolon (C<;>) to separate multiple ones, with
 optional braces.  For example, color spec C<DK/544> can be described
 as C<{SGR1;30;48;5;224}> or more readable C<{SGR(1,30,48,5,224)}>.
 
@@ -734,7 +736,7 @@ variable C<$_> set as target text.
 
 This module produces I<RESET> and I<Erase Line> sequence to recover
 from colored text.  This is preferable to clear background color set
-by scrolling in the middle of colored text at the bottom line of the
+by scrolling in the middle of colored text at the bottom of the
 terminal.
 
 However, on some terminal, including Apple_Terminal, I<Erase Line>
@@ -744,8 +746,8 @@ sometimes mysteriously disappear when it is the last character in the
 colored region.  If you do not like this behavior, set module variable
 C<$NO_RESET_EL> or C<ANSICOLOR_NO_RESET_EL> environment.
 
-Erase Line sequence "{EL}" clears the line from cursor position to the
-end of the line, which means filling the area by background color.
+Erase Line sequence C<{EL}> clears the line from cursor position to
+the end of the line, which means filling the area by background color.
 When Erase Line is explicitly found in the start sequence, it is
 copied to just before (not after) ending reset sequence, with
 preceding sequence if necessary, to keep the effect even when the text

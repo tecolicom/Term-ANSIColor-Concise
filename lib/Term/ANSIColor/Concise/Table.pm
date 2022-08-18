@@ -142,6 +142,10 @@ Term::ANSIColor::Concise::Table - Print color table
 
 Print color matrix tables.
 
+Use like this:
+
+    perl -MTerm::ANSIColor::Concise::Table=:all -e colortable
+
 =head1 FUNCTION
 
 =over 4
@@ -149,21 +153,37 @@ Print color matrix tables.
 =item B<colortable>([I<width>])
 
 Print visual 256 color matrix table on the screen.  Default I<width>
-is 144.  Use like this:
-
-    perl -MTerm::ANSIColor::Concise::Table=:all -e colortable
+is 144.
 
 =item B<colortable6>
 
+Print 6x6 24bit color martix tables.
+
+=begin html
+
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable6-s.png">
+
+=end html
+
 =item B<colortable12>
+
+Print 12x12 24bit color martix tables.
+
+=begin html
+
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable12-s.png">
+
+=end html
 
 =item B<colortable24>
 
-Print 6x6, 12x12, 24x24 24bit color martix tables.
+Print 24x24 24bit color martix tables.
 
-Use like this:
+=begin html
 
-    perl -MTerm::ANSIColor::Concise::Table=:all -e colortable6
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable24-s.png">
+
+=end html
 
 =back
 
