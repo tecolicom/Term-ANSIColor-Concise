@@ -21,7 +21,7 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
 # VERSION
 
-Version 2.00\_02
+Version 2.00\_03
 
 # DESCRIPTION
 
