@@ -259,24 +259,14 @@ See [https://en.wikipedia.org/wiki/X11\_color\_names](https://en.wikipedia.org/w
     aliceblue antiquewhite aqua aquamarine azure beige bisque black
     blanchedalmond blue blueviolet brown burlywood cadetblue
     chartreuse chocolate coral cornflowerblue cornsilk crimson cyan
-    darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey
-    darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred
-    darksalmon darkseagreen darkslateblue darkslategray darkslategrey
-    darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey
-    dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro
-    ghostwhite gold goldenrod gray green greenyellow grey honeydew
-    hotpink indianred indigo ivory khaki lavender lavenderblush
-    lawngreen lemonchiffon lightblue lightcoral lightcyan
-    lightgoldenrod lightgoldenrodyellow lightgray lightgreen lightgrey
-    lightpink lightsalmon lightseagreen lightskyblue lightslateblue
-    lightslategray lightslategrey lightsteelblue lightyellow lime
-    limegreen linen magenta maroon mediumaquamarine mediumblue
-    mediumorchid mediumpurple mediumseagreen mediumslateblue
-    mediumspringgreen mediumturquoise mediumvioletred midnightblue
-    mintcream mistyrose moccasin navajowhite navy navyblue oldlace
-    olive olivedrab orange orangered orchid palegoldenrod palegreen
-    paleturquoise palevioletred papayawhip peachpuff peru pink plum
-    powderblue purple rebeccapurple red rosybrown royalblue
+    darkolivegreen dimgray dimgrey dodgerblue firebrick floralwhite
+    forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green
+    greenyellow grey honeydew hotpink indianred indigo ivory khaki
+    lavender lavenderblush lawngreen lemonchiffon lightgoldenrodyellow
+    lime limegreen linen magenta maroon midnightblue mintcream
+    mistyrose moccasin navajowhite navy navyblue oldlace olive
+    olivedrab orange orangered orchid papayawhip peachpuff peru pink
+    plum powderblue purple rebeccapurple red rosybrown royalblue
     saddlebrown salmon sandybrown seagreen seashell sienna silver
     skyblue slateblue slategray slategrey snow springgreen steelblue
     tan teal thistle tomato turquoise violet violetred webgray
@@ -284,9 +274,7 @@ See [https://en.wikipedia.org/wiki/X11\_color\_names](https://en.wikipedia.org/w
     x11gray x11green x11grey x11maroon x11purple yellow yellowgreen
 
 In the above list, next colors have four variants.  For example, color
-`brown` has `brown1`, `brown2`, `brown3`, `brown4`.  See
-[https://en.wikipedia.org/wiki/X11\_color\_names#Color\_variations](https://en.wikipedia.org/wiki/X11_color_names#Color_variations) for
-detail.
+`brown` has `brown1`, `brown2`, `brown3`, `brown4`.
 
     antiquewhite aquamarine azure bisque blue brown burlywood
     cadetblue chartreuse chocolate coral cornsilk cyan darkgoldenrod
@@ -301,10 +289,44 @@ detail.
     sienna skyblue slateblue slategray snow springgreen steelblue tan
     thistle tomato turquoise violetred wheat yellow
 
+Next colors have variants with prefix of `dark`, `light`, `medium`,
+`pale`, `deep`.
+
+    aquamarine   medium_aquamarine
+    blue         dark_blue light_blue medium_blue
+    coral        light_coral
+    cyan         dark_cyan light_cyan
+    goldenrod    dark_goldenrod light_goldenrod pale_goldenrod
+    gray         dark_gray light_gray
+    green        dark_green light_green pale_green
+    grey         dark_grey light_grey
+    khaki        dark_khaki
+    magenta      dark_magenta
+    orange       dark_orange
+    orchid       dark_orchid medium_orchid
+    pink         deep_pink light_pink
+    purple       medium_purple
+    red          dark_red
+    salmon       dark_salmon light_salmon
+    seagreen     dark_seagreen light_seagreen medium_seagreen
+    skyblue      deep_skyblue light_skyblue
+    slateblue    dark_slateblue light_slateblue medium_slateblue
+    slategray    dark_slategray light_slategray
+    slategrey    dark_slategrey light_slategrey
+    springgreen  medium_springgreen
+    steelblue    light_steelblue
+    turquoise    dark_turquoise medium_turquoise pale_turquoise
+    violet       dark_violet
+    violetred    medium_violetred pale_violetred
+    yellow       light_yellow
+
 `gray` and `grey` have 100 steps of variants.
 
     gray gray0 .. gray100
     grey grey0 .. grey100
+
+See [https://en.wikipedia.org/wiki/X11\_color\_names#Color\_variations](https://en.wikipedia.org/wiki/X11_color_names#Color_variations)
+for detail.
 
 # FUNCTION SPEC
 
