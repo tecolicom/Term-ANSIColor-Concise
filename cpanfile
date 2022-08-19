@@ -1,5 +1,7 @@
 requires 'perl', '5.014';
 
+requires 'List::Util';
+requires 'Scalar::Util';
 requires 'Graphics::ColorNames';
 
 on 'test' => sub {

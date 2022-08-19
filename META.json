@@ -43,6 +43,8 @@
       "runtime" : {
          "requires" : {
             "Graphics::ColorNames" : "0",
+            "List::Util" : "0",
+            "Scalar::Util" : "0",
             "perl" : "v5.14.0"
          }
       },

@@ -397,6 +397,12 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
 =end html
 
+
+=head1 VERSION
+
+Version 2.00_02
+
+
 =head1 DESCRIPTION
 
 This module provides a simple concise format to describe complicated
@@ -719,8 +725,8 @@ Erase Line sequence C<{EL}> clears the line from cursor position to
 the end of the line, which means filling the area by background color.
 When Erase Line is explicitly found in the start sequence, it is
 copied to just before (not after) ending reset sequence, with
-preceding sequence if necessary, to keep the effect even when the text
-is wrapped to multiple lines.
+preceding sequence if necessary, to keep the effect of filling line
+even if the text is wrapped to multiple lines.
 
 See L</ENVIRONMENT> section.
 
