@@ -664,24 +664,8 @@ See L<https://en.wikipedia.org/wiki/X11_color_names>.
     webgreen webgrey webmaroon webpurple wheat white whitesmoke
     x11gray x11green x11grey x11maroon x11purple yellow yellowgreen
 
-In the above list, next colors have four variants.  For example, color
-C<brown> has C<brown1>, C<brown2>, C<brown3>, C<brown4>.
-
-    antiquewhite aquamarine azure bisque blue brown burlywood
-    cadetblue chartreuse chocolate coral cornsilk cyan darkgoldenrod
-    darkolivegreen darkorange darkorchid darkseagreen darkslategray
-    deeppink deepskyblue dodgerblue firebrick gold goldenrod green
-    honeydew hotpink indianred ivory khaki lavenderblush lemonchiffon
-    lightblue lightcyan lightgoldenrod lightpink lightsalmon
-    lightskyblue lightsteelblue lightyellow magenta maroon
-    mediumorchid mediumpurple mistyrose navajowhite olivedrab orange
-    orangered orchid palegreen paleturquoise palevioletred peachpuff
-    pink plum purple red rosybrown royalblue salmon seagreen seashell
-    sienna skyblue slateblue slategray snow springgreen steelblue tan
-    thistle tomato turquoise violetred wheat yellow
-
-Next colors have variants with prefix of C<dark>, C<light>, C<medium>,
-C<pale>, C<deep>.
+In the above list, next colors have variants with prefix of C<dark>,
+C<light>, C<medium>, C<pale>, C<deep>.
 
     aquamarine   medium_aquamarine
     blue         dark_blue light_blue medium_blue
@@ -710,6 +694,22 @@ C<pale>, C<deep>.
     violet       dark_violet
     violetred    medium_violetred pale_violetred
     yellow       light_yellow
+
+Next colors have four variants.  For example, color C<brown> has
+C<brown1>, C<brown2>, C<brown3>, C<brown4>.
+
+    antiquewhite aquamarine azure bisque blue brown burlywood
+    cadetblue chartreuse chocolate coral cornsilk cyan darkgoldenrod
+    darkolivegreen darkorange darkorchid darkseagreen darkslategray
+    deeppink deepskyblue dodgerblue firebrick gold goldenrod green
+    honeydew hotpink indianred ivory khaki lavenderblush lemonchiffon
+    lightblue lightcyan lightgoldenrod lightpink lightsalmon
+    lightskyblue lightsteelblue lightyellow magenta maroon
+    mediumorchid mediumpurple mistyrose navajowhite olivedrab orange
+    orangered orchid palegreen paleturquoise palevioletred peachpuff
+    pink plum purple red rosybrown royalblue salmon seagreen seashell
+    sienna skyblue slateblue slategray snow springgreen steelblue tan
+    thistle tomato turquoise violetred wheat yellow
 
 C<gray> and C<grey> have 100 steps of variants.
 
