@@ -203,9 +203,9 @@ Color names enclosed by angle bracket :
     <medium_aqua_marine>
 
 These colors are defined in 24bit RGB.  Names are case insensitive and
-underscore (<\_>) is ignored, but spaces and punctuations are not
-allowed.  So `aliceblue`, `AliceBlue`, `ALICE_BLUE` are valid but
-`Alice Blue` is not.  See ["COLOR NAMES"](#color-names) section for detail.
+underscore (`_`) is ignored, but spaces and punctuations are not
+allowed.  So `<aliceblue>`, `<AliceBlue>`, `<ALICE_BLUE>` are all valid but `<Alice Blue>` is not.  See ["COLOR NAMES"](#color-names)
+section for detail.
 
 ## CSI SEQUENCES and OTHERS
 

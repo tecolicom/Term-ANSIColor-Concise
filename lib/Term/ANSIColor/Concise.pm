@@ -594,9 +594,10 @@ Color names enclosed by angle bracket :
     <medium_aqua_marine>
 
 These colors are defined in 24bit RGB.  Names are case insensitive and
-underscore (<_>) is ignored, but spaces and punctuations are not
-allowed.  So C<aliceblue>, C<AliceBlue>, C<ALICE_BLUE> are valid but
-C<Alice Blue> is not.  See L</COLOR NAMES> section for detail.
+underscore (C<_>) is ignored, but spaces and punctuations are not
+allowed.  So C<< <aliceblue> >>, C<< <AliceBlue> >>, C<< <ALICE_BLUE>
+>> are all valid but C<< <Alice Blue> >> is not.  See L</COLOR NAMES>
+section for detail.
 
 =head2 CSI SEQUENCES and OTHERS
 
