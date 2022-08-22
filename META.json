@@ -42,7 +42,7 @@
       },
       "runtime" : {
          "requires" : {
-            "Graphics::ColorNames" : "0",
+            "Graphics::ColorNames" : "v3.0.0",
             "List::Util" : "0",
             "Scalar::Util" : "0",
             "perl" : "v5.14.0"
