@@ -164,7 +164,7 @@ my $colorspec_re = qr{
 sub ansi_numbers {
     local $_ = shift // '';
     my @numbers;
-    my $toggle = Term::ANSIColor::Concise::ToggleValue->new(value => 10);
+    my $toggle = ToggleValue->new(value => 10);
 
     while (m{\G (?: $colorspec_re | (?<err> .+ ) ) }xig) {
 	if ($+{toggle}) {
