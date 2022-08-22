@@ -635,13 +635,13 @@ These sequences do not start with CSI, and do not take parameters.
 
 =head2 EXAMPLES
 
-    RGB  6x6x6    12bit      24bit            color name
+    8+8  6x6x6    12bit      24bit            names
     ===  =======  =========  =============    ==================
     B    005      #00F       (0,0,255)        <blue>
      /M     /505      /#F0F     /(255,0,255)  /<magenta>
     K/W  000/555  #000/#FFF  #000000/#FFFFFF  <black>/<white>
     R/G  500/050  #F00/#0F0  #FF0000/#00FF00  <red>/<green>
-    W/w  L03/L20  #333/#ccc  #303030/#c6c6c6  <dimgray>/<lightgray>
+    W/w  L03/L20  #333/#ccc  #333333/#cccccc  <gray20>/<gray80>
 
 =head1 COLOR NAMES
 
