@@ -3,6 +3,7 @@ package Term::ANSIColor::Concise;
 our $VERSION = "2.00_04";
 
 use v5.14;
+use warnings;
 use utf8;
 
 use Exporter 'import';
