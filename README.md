@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/kaz-utashiro/Term-ANSIColor-Concise/actions/workflows/test.yml/badge.svg)](https://github.com/kaz-utashiro/Term-ANSIColor-Concise/actions)
+[![Actions Status](https://github.com/kaz-utashiro/Term-ANSIColor-Concise/workflows/test/badge.svg)](https://github.com/kaz-utashiro/Term-ANSIColor-Concise/actions) [![MetaCPAN Release](https://badge.fury.io/pl/Term-ANSIColor-Concise.svg)](https://metacpan.org/release/Term-ANSIColor-Concise)
 # NAME
 
 Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
