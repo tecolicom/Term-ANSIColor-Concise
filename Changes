@@ -2,6 +2,10 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+2.00_05 2022-08-23T10:00:03Z
+
+    - try not to index local package
+
 2.00_04 2022-08-22T09:33:25Z
 
     - require Graphics::ColorNames@v3
