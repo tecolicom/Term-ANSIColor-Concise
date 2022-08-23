@@ -155,6 +155,18 @@ Use like this:
 Print visual 256 color matrix table on the screen.  Default I<width>
 is 144.
 
+=begin html
+
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable-s.png">
+
+=end html
+
+=begin html
+
+<p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable-rev-s.png">
+
+=end html
+
 =item B<colortable6>
 
 Print 6x6 24bit color martix tables.
