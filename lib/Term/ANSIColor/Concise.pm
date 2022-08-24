@@ -407,7 +407,7 @@ Version 2.00_05
 =head1 DESCRIPTION
 
 This module provides a simple concise format to describe complicated
-colors and effects for ANSI terminals.  These notaions are supposed to
+colors and effects for ANSI terminals.  These notations are supposed to
 be used in command line option parameters.
 
 This module used to be a part of L<Getopt::EX::Colormap> module, which
@@ -417,10 +417,10 @@ provide easy handling interface for command line options.
 
 By default, this library produces ANSI 256 color sequence.  That is
 eight standard colors, eight high intensity colors, 6x6x6 216 colors,
-and grayscales in 24 steps.
+and gray scales in 24 steps.
 
 Color described by 12bit/24bit RGB values are converted to 6x6x6 216
-colors, or 24 grayscales if all RGB values are same.
+colors, or 24 gray scales if all RGB values are same.
 
 For a terminal which can display 24bit colors, full-color sequence is
 produce.  See L</ENVIRONMENT> section.
@@ -514,7 +514,7 @@ Single uppercase character representing 8 colors, and alternative
 
 =head2 EFFECTS and CONTROLS
 
-Single case-insensitive chracter for special effects :
+Single case-insensitive character for special effects :
 
     N    None
     Z  0 Zero (reset)
@@ -595,7 +595,7 @@ Color names enclosed by angle bracket :
     <medium_aqua_marine>
 
 These colors are defined in 24bit RGB.  Names are case insensitive and
-underscore (C<_>) is ignored, but spaces and punctuations are not
+underscore (C<_>) is ignored, but space and punctuation are not
 allowed.  So C<< <aliceblue> >>, C<< <AliceBlue> >>, C<< <ALICE_BLUE>
 >> are all valid but C<< <Alice Blue> >> is not.  See L</COLOR NAMES>
 section for detail.
@@ -766,7 +766,7 @@ tell B<less> command so, if you want to see the output using it.
 =head1 ENVIRONMENT
 
 If the environment variable C<NO_COLOR> is set, regardless of its
-value, colorizing interface in this module never produce color
+value, colorization interface in this module never produce color
 sequence.  Primitive function such as C<ansi_code> is not the case.
 See L<https://no-color.org/>.
 
