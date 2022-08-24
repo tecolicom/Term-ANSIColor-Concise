@@ -754,6 +754,14 @@ even if the text is wrapped to multiple lines.
 
 See L</ENVIRONMENT> section.
 
+=head2 LESS
+
+Because I<Erase Line> sequence end with C<K>, it is a good idea to
+tell B<less> command so, if you want to see the output using it.
+
+    LESS=-cR
+    LESSANSIENDCHARS=mK
+
 
 =head1 ENVIRONMENT
 

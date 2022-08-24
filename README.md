@@ -359,6 +359,14 @@ even if the text is wrapped to multiple lines.
 
 See ["ENVIRONMENT"](#environment) section.
 
+## LESS
+
+Because _Erase Line_ sequence end with `K`, it is a good idea to
+tell **less** command so, if you want to see the output using it.
+
+    LESS=-cR
+    LESSANSIENDCHARS=mK
+
 # ENVIRONMENT
 
 If the environment variable `NO_COLOR` is set, regardless of its
