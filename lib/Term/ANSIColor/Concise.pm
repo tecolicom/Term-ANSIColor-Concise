@@ -624,11 +624,14 @@ C<{NAME}>.
 
 These names can be followed by optional numerical parameters, using
 comma (C<,>) or semicolon (C<;>) to separate multiple ones, with
-optional braces.  For example, color spec C<DK/544> can be described
-as C<{SGR1;30;48;5;224}> or more readable C<{SGR(1,30,48,5,224)}>.
+optional parentheses.  For example, color spec C<DK/544> can be
+described as C<{SGR1;30;48;5;224}> or more readable
+C<{SGR(1,30,48,5,224)}>.
 
 Some other escape sequences are supported in the form of C<{NAME}>.
 These sequences do not start with CSI, and do not take parameters.
+VT100 compatible terminal usually support these, and does not support
+C<SCP> and C<RCP> CSI code.
 
     RIS     Reset to Initial State
     DECSC   DEC Save Cursor

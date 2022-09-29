@@ -231,11 +231,14 @@ Native CSI (Control Sequence Introducer) sequences in the form of
 
 These names can be followed by optional numerical parameters, using
 comma (`,`) or semicolon (`;`) to separate multiple ones, with
-optional braces.  For example, color spec `DK/544` can be described
-as `{SGR1;30;48;5;224}` or more readable `{SGR(1,30,48,5,224)}`.
+optional parentheses.  For example, color spec `DK/544` can be
+described as `{SGR1;30;48;5;224}` or more readable
+`{SGR(1,30,48,5,224)}`.
 
 Some other escape sequences are supported in the form of `{NAME}`.
 These sequences do not start with CSI, and do not take parameters.
+VT100 compatible terminal usually support these, and does not support
+`SCP` and `RCP` CSI code.
 
     RIS     Reset to Initial State
     DECSC   DEC Save Cursor
