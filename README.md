@@ -41,8 +41,8 @@ and gray scales in 24 steps.
 Color described by 12bit/24bit RGB values are converted to 6x6x6 216
 colors, or 24 gray scales if all RGB values are same.
 
-For a terminal which can display 24bit colors, full-color sequence is
-produce.  See ["ENVIRONMENT"](#environment) section.
+For a terminal which can display 24bit colors, full-color sequence can
+be produced.  See ["ENVIRONMENT"](#environment) section.
 
 # FUNCTION
 

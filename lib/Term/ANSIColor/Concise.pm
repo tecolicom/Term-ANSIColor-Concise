@@ -24,7 +24,7 @@ use List::Util qw(min max first);
 
 our $NO_NO_COLOR //= $ENV{ANSICOLOR_NO_NO_COLOR};
 our $NO_COLOR    //= !$NO_NO_COLOR && defined $ENV{NO_COLOR};
-our $RGB24       //= $ENV{COLORTERM}//'' eq 'truecolor' || $ENV{ANSICOLOR_RGB24};
+our $RGB24       //= $ENV{ANSICOLOR_RGB24} // ($ENV{COLORTERM}//'' eq 'truecolor');
 our $LINEAR_256  //= $ENV{ANSICOLOR_LINEAR_256};
 our $LINEAR_GRAY //= $ENV{ANSICOLOR_LINEAR_GRAY};
 our $NO_RESET_EL //= $ENV{ANSICOLOR_NO_RESET_EL};
@@ -422,8 +422,8 @@ and gray scales in 24 steps.
 Color described by 12bit/24bit RGB values are converted to 6x6x6 216
 colors, or 24 gray scales if all RGB values are same.
 
-For a terminal which can display 24bit colors, full-color sequence is
-produce.  See L</ENVIRONMENT> section.
+For a terminal which can display 24bit colors, full-color sequence can
+be produced.  See L</ENVIRONMENT> section.
 
 
 =head1 FUNCTION
