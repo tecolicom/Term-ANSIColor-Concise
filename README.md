@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/kaz-utashiro/Term-ANSIColor-Concise/workflows/test/badge.svg)](https://github.com/kaz-utashiro/Term-ANSIColor-Concise/actions) [![MetaCPAN Release](https://badge.fury.io/pl/Term-ANSIColor-Concise.svg)](https://metacpan.org/release/Term-ANSIColor-Concise)
+[![Actions Status](https://github.com/tecolicom/Term-ANSIColor-Concise/workflows/test/badge.svg)](https://github.com/tecolicom/Term-ANSIColor-Concise/actions) [![MetaCPAN Release](https://badge.fury.io/pl/Term-ANSIColor-Concise.svg)](https://metacpan.org/release/Term-ANSIColor-Concise)
 # NAME
 
 Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
@@ -16,7 +16,7 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
                    'Flashing Underlined Bold Italic Gold on Gray10 Bar');
 
 <div>
-    <p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/synopsis.png">
+    <p><img width="750" src="https://raw.githubusercontent.com/tecolicom/Term-ANSIColor-Concise/main/images/synopsis.png">
 </div>
 
 # VERSION
@@ -394,11 +394,11 @@ Color table can be shown by other module
     $ perl -MTerm::ANSIColor::Concise::Table=:all -e colortable
 
 <div>
-    <p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable-s.png">
+    <p><img width="750" src="https://raw.githubusercontent.com/tecolicom/Term-ANSIColor-Concise/main/images/colortable-s.png">
 </div>
 
 <div>
-    <p><img width="750" src="https://raw.githubusercontent.com/kaz-utashiro/Term-ANSIColor-Concise/main/images/colortable-rev-s.png">
+    <p><img width="750" src="https://raw.githubusercontent.com/tecolicom/Term-ANSIColor-Concise/main/images/colortable-rev-s.png">
 </div>
 
 # SEE ALSO
@@ -465,7 +465,7 @@ The following copyright notice applies to all the files provided in
 this distribution, including binary files, unless explicitly noted
 otherwise.
 
-Copyright 2015-2022 Kazumasa Utashiro
+Copyright 2015-2023 Kazumasa Utashiro
 
 # LICENSE
 
