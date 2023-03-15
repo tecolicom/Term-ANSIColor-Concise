@@ -2,6 +2,10 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+2.02 2023-03-15T10:07:07Z
+
+    - produce color sequence after CR char (bug fix)
+
 2.01 2022-08-24T07:53:46Z
 
     - version 2.01
