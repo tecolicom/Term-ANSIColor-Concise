@@ -212,6 +212,7 @@ section for detail.
 Native CSI (Control Sequence Introducer) sequences in the form of
 `{NAME}`.
 
+    ICH n   Insert Character
     CUU n   Cursor up
     CUD n   Cursor Down
     CUF n   Cursor Forward
@@ -222,8 +223,12 @@ Native CSI (Control Sequence Introducer) sequences in the form of
     CUP n,m Cursor Position
     ED  n   Erase in Display (0 after, 1 before, 2 entire, 3 w/buffer)
     EL  n   Erase in Line (0 after, 1 before, 2 entire)
+    IL  n   Insert Line
+    DL  n   Delete Line
+    DCH n   Delete Character (scroll rest to left)
     SU  n   Scroll Up
     SD  n   Scroll Down
+    ECH n   Erase Character
     HVP n,m Horizontal Vertical Position
     SGR n*  Select Graphic Rendition
     SCP     Save Cursor Position

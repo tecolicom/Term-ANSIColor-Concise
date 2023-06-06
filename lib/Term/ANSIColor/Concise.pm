@@ -241,6 +241,7 @@ use constant {
 };
 
 my %csi_terminator = (
+    ICH => '@',	 # Insert Character
     CUU => 'A',	 # Cursor up
     CUD => 'B',	 # Cursor Down
     CUF => 'C',	 # Cursor Forward
@@ -251,8 +252,12 @@ my %csi_terminator = (
     CUP => 'H',	 # Cursor Position
     ED  => 'J',	 # Erase in Display (0 after, 1 before, 2 entire, 3 w/buffer)
     EL  => 'K',	 # Erase in Line (0 after, 1 before, 2 entire)
+    IL  => 'L',	 # Insert Line
+    DL  => 'M',	 # Delete Line
+    DCH => 'P',	 # Delete Character
     SU  => 'S',	 # Scroll Up
     SD  => 'T',	 # Scroll Down
+    ECH => 'X',	 # Erase Character
     HVP => 'f',	 # Horizontal Vertical Position
     SGR => 'm',	 # Select Graphic Rendition
     SCP => 's',	 # Save Cursor Position
@@ -605,6 +610,7 @@ section for detail.
 Native CSI (Control Sequence Introducer) sequences in the form of
 C<{NAME}>.
 
+    ICH n   Insert Character
     CUU n   Cursor up
     CUD n   Cursor Down
     CUF n   Cursor Forward
@@ -615,8 +621,12 @@ C<{NAME}>.
     CUP n,m Cursor Position
     ED  n   Erase in Display (0 after, 1 before, 2 entire, 3 w/buffer)
     EL  n   Erase in Line (0 after, 1 before, 2 entire)
+    IL  n   Insert Line
+    DL  n   Delete Line
+    DCH n   Delete Character (scroll rest to left)
     SU  n   Scroll Up
     SD  n   Scroll Down
+    ECH n   Erase Character
     HVP n,m Horizontal Vertical Position
     SGR n*  Select Graphic Rendition
     SCP     Save Cursor Position
