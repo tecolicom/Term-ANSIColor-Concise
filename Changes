@@ -2,6 +2,11 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+2.04 2023-06-16T10:07:55Z
+
+    - support other sequences:
+        VPA, VPR, CSI, OSC, DECEC, DECDC
+
 2.03 2023-06-06T02:54:05Z
 
     - support some additional CSI names:
