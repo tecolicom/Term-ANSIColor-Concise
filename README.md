@@ -96,9 +96,10 @@ be produced.  See ["ENVIRONMENT"](#environment) section.
 - **csi\_code**(_name_, _params_)
 
     Produce CSI (Control Sequence Introducer) sequence by name with
-    numeric parameters.  Parameter _name_ is one of standard (CUU, CUD,
-    CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, SU, SD, HVP, SGR, SCP, RCP) or
-    non-standard (RIS, DECSC, DECRC).
+    numeric parameters.  Parameter _name_ is one of standard (ICH, CUU,
+    CUD, CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, IL, DL, DCH, SU, SD, ECH,
+    VPA, VPR, HVP, SGR, DSR, SCP, RCP) or non-standard (CSI, OSC, RIS,
+    DECSC, DECRC, DECEC, DECDC).
 
 # COLOR SPEC
 
@@ -229,8 +230,11 @@ Native CSI (Control Sequence Introducer) sequences in the form of
     SU  n   Scroll Up
     SD  n   Scroll Down
     ECH n   Erase Character
+    VPA n   Vertical Position Absolute
+    VPR n   Vertical Position Relative
     HVP n,m Horizontal Vertical Position
     SGR n*  Select Graphic Rendition
+    DSR n   Device Status Report (0 cursor position)
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 
@@ -245,9 +249,13 @@ These sequences do not start with CSI, and do not take parameters.
 VT100 compatible terminal usually support these, and does not support
 `SCP` and `RCP` CSI code.
 
-    RIS     Reset to Initial State
-    DECSC   DEC Save Cursor
-    DECRC   DEC Restore Cursor
+    CSI    Control Sequence Introducer
+    OSC    Operating System Command
+    RIS    Reset to Initial State
+    DECSC  DEC Save Cursor
+    DECRC  DEC Restore Cursor
+    DECEC  DEC Enable Cursor
+    DECDC  DEC Disable Cursor
 
 ## EXAMPLES
 

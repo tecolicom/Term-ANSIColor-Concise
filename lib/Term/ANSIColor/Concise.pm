@@ -258,16 +258,23 @@ my %csi_terminator = (
     SU  => 'S',	 # Scroll Up
     SD  => 'T',	 # Scroll Down
     ECH => 'X',	 # Erase Character
+    VPA => 'd',	 # Vertical Position Absolute
+    VPR => 'e',  # Vertical Position Relative
     HVP => 'f',	 # Horizontal Vertical Position
     SGR => 'm',	 # Select Graphic Rendition
+    DSR => 'n',	 # Device Status Report (0 cursor position)
     SCP => 's',	 # Save Cursor Position
     RCP => 'u',	 # Restore Cursor Position
     );
 
 my %other_sequence = (
-    RIS   => "\ec",  # Reset to Initial State
-    DECSC => "\e7",  # DEC Save Cursor
-    DECRC => "\e8",  # DEC Restore Cursor
+    CSI => "\e[",     # Control Sequence Introducer
+    OSC => "\e]",     # Operating System Command
+    RIS => "\ec",     # Reset to Initial State
+    DECSC => "\e7",     # DEC Save Cursor
+    DECRC => "\e8",     # DEC Restore Cursor
+    DECEC => "\e[?25h", # DEC Enable Cursor
+    DECDC => "\e[?25l", # DEC Disable Cursor
     );
 
 sub csi_code {
@@ -486,9 +493,10 @@ by B<ansi_code("Z")>.
 =item B<csi_code>(I<name>, I<params>)
 
 Produce CSI (Control Sequence Introducer) sequence by name with
-numeric parameters.  Parameter I<name> is one of standard (CUU, CUD,
-CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, SU, SD, HVP, SGR, SCP, RCP) or
-non-standard (RIS, DECSC, DECRC).
+numeric parameters.  Parameter I<name> is one of standard (ICH, CUU,
+CUD, CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, IL, DL, DCH, SU, SD, ECH,
+VPA, VPR, HVP, SGR, DSR, SCP, RCP) or non-standard (CSI, OSC, RIS,
+DECSC, DECRC, DECEC, DECDC).
 
 =back
 
@@ -627,8 +635,11 @@ C<{NAME}>.
     SU  n   Scroll Up
     SD  n   Scroll Down
     ECH n   Erase Character
+    VPA n   Vertical Position Absolute
+    VPR n   Vertical Position Relative
     HVP n,m Horizontal Vertical Position
     SGR n*  Select Graphic Rendition
+    DSR n   Device Status Report (0 cursor position)
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 
@@ -643,9 +654,13 @@ These sequences do not start with CSI, and do not take parameters.
 VT100 compatible terminal usually support these, and does not support
 C<SCP> and C<RCP> CSI code.
 
-    RIS     Reset to Initial State
-    DECSC   DEC Save Cursor
-    DECRC   DEC Restore Cursor
+    CSI    Control Sequence Introducer
+    OSC    Operating System Command
+    RIS    Reset to Initial State
+    DECSC  DEC Save Cursor
+    DECRC  DEC Restore Cursor
+    DECEC  DEC Enable Cursor
+    DECDC  DEC Disable Cursor
 
 =head2 EXAMPLES
 
