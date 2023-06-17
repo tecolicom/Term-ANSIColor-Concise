@@ -22,7 +22,7 @@ jobs:
         with:
           perl-version: ${{ matrix.perl }}
       - name: Install dependencies
-        run: cpanm -n --installdeps --with-develop --with-recommends .
+        run: cpanm -qn --installdeps --with-develop --with-recommends .
       - name: Run test
         run: prove -lvr t
 
