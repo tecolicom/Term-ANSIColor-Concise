@@ -22,13 +22,14 @@ $Data::Dumper::Sortkeys = 1;
 use Term::ANSIColor::Concise::Util;
 use List::Util qw(min max first);
 
-our $NO_NO_COLOR //= $ENV{ANSICOLOR_NO_NO_COLOR};
-our $NO_COLOR    //= !$NO_NO_COLOR && defined $ENV{NO_COLOR};
-our $RGB24       //= $ENV{ANSICOLOR_RGB24} // ($ENV{COLORTERM}//'' eq 'truecolor');
-our $LINEAR_256  //= $ENV{ANSICOLOR_LINEAR_256};
-our $LINEAR_GRAY //= $ENV{ANSICOLOR_LINEAR_GRAY};
-our $NO_RESET_EL //= $ENV{ANSICOLOR_NO_RESET_EL};
-our $SPLIT_ANSI  //= $ENV{ANSICOLOR_SPLIT_ANSI};
+our $NO_NO_COLOR   //= $ENV{ANSICOLOR_NO_NO_COLOR};
+our $NO_COLOR      //= !$NO_NO_COLOR && defined $ENV{NO_COLOR};
+our $RGB24         //= $ENV{ANSICOLOR_RGB24} // ($ENV{COLORTERM}//'' eq 'truecolor');
+our $LINEAR_256    //= $ENV{ANSICOLOR_LINEAR_256};
+our $LINEAR_GRAY   //= $ENV{ANSICOLOR_LINEAR_GRAY};
+our $NO_RESET_EL   //= $ENV{ANSICOLOR_NO_RESET_EL};
+our $SPLIT_ANSI    //= $ENV{ANSICOLOR_SPLIT_ANSI};
+our $NO_CUMULATIVE //= $ENV{ANSICOLOR_NO_CUMULATIVE};
 
 my @nonlinear = do {
     map { ( $_->[0] ) x $_->[1] } (
@@ -360,25 +361,37 @@ sub cached_ansi_color {
 use Scalar::Util qw(blessed);
 
 sub apply_color {
-    my($cache, $color, $text) = @_;
+    (my($cache, $color), local($_)) = @_;
     if (ref $color eq 'CODE') {
-	return $color->($text);
+	return $color->($_);
     }
     elsif (blessed $color and $color->can('call')) {
-	return $color->call for $text;
+	return $color->call;
     }
     elsif ($NO_COLOR) {
-        return $text;
+        return $_;
+    }
+    elsif ($NO_CUMULATIVE) { # old behavior
+	my($s, $e, $el) = @{ $cache->{$color} //= [ ansi_pair($color) ] };
+	state $reset = qr{ \e\[[0;]*m (?: \e\[[0;]*[Km] )* }x;
+	if ($el) {
+	    s/(\A|(?<=[\r\n])|$reset)\K(?<x>[^\e\r\n]+|(?<!\n))/${s}$+{x}${e}/mg;
+	} else {
+	    s/(\A|(?<=[\r\n])|$reset)\K(?<x>[^\e\r\n]+)/${s}$+{x}${e}/mg;
+	}
+	return $_;
     }
     else {
 	my($s, $e, $el) = @{ $cache->{$color} //= [ ansi_pair($color) ] };
 	state $reset = qr{ \e\[[0;]*m (?: \e\[[0;]*[Km] )* }x;
 	if ($el) {
-	    $text =~ s/(\A|(?<=[\r\n])|$reset)\K(?<x>[^\e\r\n]+|(?<!\n))/${s}$+{x}${e}/mg;
+	    s/(?:\A|(?:[\r\n](?!\z)|$reset++))\K/${s}/g;
+	    s/([\r\n]|(?<![\r\n])\z)/${e}${1}/g;
 	} else {
-	    $text =~ s/(\A|(?<=[\r\n])|$reset)\K(?<x>[^\e\r\n]+)/${s}$+{x}${e}/mg;
+	    s/(?:\A|[\r\n]|$reset++)(?=.)\K/${s}/g;
+	    s/(?<!\e\[[Km])([\r\n]|(?<=[^\r\n])\z)/${e}${1}/g;
 	}
-	return $text;
+	return $_;
     }
 }
 
@@ -451,8 +464,10 @@ In the result, given I<text> is enclosed by appropriate open/close
 sequences.  Close sequence can vary according to the open sequence.
 See L</RESET SEQUENCE> section.
 
-If the I<text> already includes colored regions, they remain untouched
-and only non-colored parts are colored.
+If I<text> already contains colored areas, the color specifications
+are applied accumulatively. For example, if an underline instruction
+is given for a string of red text, both specifications will be in
+effect.
 
 Actually, I<spec> and I<text> pair can be repeated as many as
 possible.  It is same as calling the function multiple times with

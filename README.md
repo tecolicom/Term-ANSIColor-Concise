@@ -55,8 +55,10 @@ be produced.  See ["ENVIRONMENT"](#environment) section.
     sequences.  Close sequence can vary according to the open sequence.
     See ["RESET SEQUENCE"](#reset-sequence) section.
 
-    If the _text_ already includes colored regions, they remain untouched
-    and only non-colored parts are colored.
+    If _text_ already contains colored areas, the color specifications
+    are applied accumulatively. For example, if an underline instruction
+    is given for a string of red text, both specifications will be in
+    effect.
 
     Actually, _spec_ and _text_ pair can be repeated as many as
     possible.  It is same as calling the function multiple times with
