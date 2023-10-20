@@ -49,7 +49,7 @@ is(ansi_color_24("ABCDEF", "text"), "\e[38;2;171;205;239m"."text".RESET, "ansi_c
 {
     my $text = ansi_color("R", "ABCDEF");
     my $rslt = ansi_code("U") . $text;
-    is(ansi_color("U", $text), $rslt, "nested/unchange");
+    is(ansi_color("U", $text), $rslt, "nested 3");
 }
 
 TODO: {

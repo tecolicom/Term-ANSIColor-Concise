@@ -271,8 +271,8 @@ VT100 compatible terminal usually support these, and does not support
 
 # COLOR NAMES
 
-Color names listed in [Graphics::ColorNames::X](https://metacpan.org/pod/Graphics%3A%3AColorNames%3A%3AX) module can be used.
-See [https://en.wikipedia.org/wiki/X11\_color\_names](https://en.wikipedia.org/wiki/X11_color_names).
+Color names listed in [Graphics::ColorNames::X](https://metacpan.org/pod/Graphics%3A%3AColorNames%3A%3AX) module can be used in
+the form of `<NAME>`.
 
     aliceblue antiquewhite aqua aquamarine azure beige bisque black
     blanchedalmond blue blueviolet brown burlywood cadetblue

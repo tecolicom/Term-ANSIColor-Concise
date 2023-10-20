@@ -689,8 +689,8 @@ C<SCP> and C<RCP> CSI code.
 
 =head1 COLOR NAMES
 
-Color names listed in L<Graphics::ColorNames::X> module can be used.
-See L<https://en.wikipedia.org/wiki/X11_color_names>.
+Color names listed in L<Graphics::ColorNames::X> module can be used in
+the form of C<< <NAME> >>.
 
     aliceblue antiquewhite aqua aquamarine azure beige bisque black
     blanchedalmond blue blueviolet brown burlywood cadetblue
