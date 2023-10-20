@@ -355,7 +355,7 @@ sub cached_ansi_color {
 	push @result, $text;
     }
     croak "Wrong number of parameters." if @_;
-    join '', @result;
+    wantarray ? @result : join('', @result);
 }
 
 use Scalar::Util qw(blessed);
@@ -455,7 +455,7 @@ be produced.  See L</ENVIRONMENT> section.
 
 =over 4
 
-=item B<ansi_color>(I<spec>, I<text>)
+=item B<ansi_color>(I<spec>, I<text>, ...)
 
 Return colorized version of given text.  Produces 256 or 24bit colors
 depending on the setting.
@@ -469,15 +469,16 @@ are applied accumulatively. For example, if an underline instruction
 is given for a string of red text, both specifications will be in
 effect.
 
-Actually, I<spec> and I<text> pair can be repeated as many as
-possible.  It is same as calling the function multiple times with
-single pair and join results.
+The I<spec> and I<text> pairs can be repeated any number of times. In
+scalar context, the results by each pair are returned as a
+concatenated string. When used in an array context, results are
+returned in a list.
 
 =item B<ansi_color>([ I<spec1>, I<spec2>, ... ], I<text>)
 
 If I<spec> parameter is ARRAYREF, multiple I<spec>s can be specified
-at once.  This is not useful for color spec because they can be simply
-joined, but may be useful when mixed with L</FUNCTION SPEC>.
+at once.  This is not useful for a text color spec because they can be
+simply joined, but may be useful when mixed with L</FUNCTION SPEC>.
 
 =item B<ansi_color_24>(I<spec>, I<text>)
 

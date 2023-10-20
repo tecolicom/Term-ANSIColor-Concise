@@ -46,7 +46,7 @@ be produced.  See ["ENVIRONMENT"](#environment) section.
 
 # FUNCTION
 
-- **ansi\_color**(_spec_, _text_)
+- **ansi\_color**(_spec_, _text_, ...)
 
     Return colorized version of given text.  Produces 256 or 24bit colors
     depending on the setting.
@@ -60,15 +60,16 @@ be produced.  See ["ENVIRONMENT"](#environment) section.
     is given for a string of red text, both specifications will be in
     effect.
 
-    Actually, _spec_ and _text_ pair can be repeated as many as
-    possible.  It is same as calling the function multiple times with
-    single pair and join results.
+    The _spec_ and _text_ pairs can be repeated any number of times. In
+    scalar context, the results by each pair are returned as a
+    concatenated string. When used in an array context, results are
+    returned in a list.
 
 - **ansi\_color**(\[ _spec1_, _spec2_, ... \], _text_)
 
     If _spec_ parameter is ARRAYREF, multiple _spec_s can be specified
-    at once.  This is not useful for color spec because they can be simply
-    joined, but may be useful when mixed with ["FUNCTION SPEC"](#function-spec).
+    at once.  This is not useful for a text color spec because they can be
+    simply joined, but may be useful when mixed with ["FUNCTION SPEC"](#function-spec).
 
 - **ansi\_color\_24**(_spec_, _text_)
 - **ansi\_color\_24**(\[ _spec1_, _spec2_, ... \], _text_)
