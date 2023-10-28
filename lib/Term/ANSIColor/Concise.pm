@@ -225,7 +225,7 @@ sub ansi_numbers {
 	}
     } continue {
 	if ($SPLIT_ANSI) {
-	    my $index = first { not ref $numbers[$_] } 0 .. $#numbers;
+	    my $index = first { not ref $numbers[$_] } keys @numbers;
 	    if (defined $index) {
 		my @sgr = splice @numbers, $index;
 		push @numbers, [ 'SGR', @sgr ];
