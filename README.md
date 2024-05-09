@@ -21,7 +21,7 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
 # VERSION
 
-Version 2.05
+Version 2.06
 
 # DESCRIPTION
 
@@ -481,7 +481,7 @@ The following copyright notice applies to all the files provided in
 this distribution, including binary files, unless explicitly noted
 otherwise.
 
-Copyright 2015-2023 Kazumasa Utashiro
+Copyright ©︎ 2015-2024 Kazumasa Utashiro
 
 # LICENSE
 

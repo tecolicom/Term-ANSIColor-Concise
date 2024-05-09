@@ -2,6 +2,10 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+2.06 2024-05-09T08:40:54Z
+
+    - now ansi_color() returns result list in array context
+
 2.05 2023-06-17T08:18:50Z
 
     - introduce cumulative color policy

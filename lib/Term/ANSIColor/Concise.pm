@@ -1,6 +1,6 @@
 package Term::ANSIColor::Concise;
 
-our $VERSION = "2.05";
+our $VERSION = "2.06";
 
 use v5.14;
 use warnings;
@@ -400,6 +400,8 @@ sub apply_color {
 __END__
 
 
+=encoding utf8
+
 =head1 NAME
 
 Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
@@ -426,7 +428,7 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
 =head1 VERSION
 
-Version 2.05
+Version 2.06
 
 
 =head1 DESCRIPTION
@@ -913,7 +915,7 @@ The following copyright notice applies to all the files provided in
 this distribution, including binary files, unless explicitly noted
 otherwise.
 
-Copyright 2015-2023 Kazumasa Utashiro
+Copyright ©︎ 2015-2024 Kazumasa Utashiro
 
 
 =head1 LICENSE
