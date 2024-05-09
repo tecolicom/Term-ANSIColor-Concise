@@ -263,7 +263,7 @@ my %csi_terminator = (
     VPR => 'e',  # Vertical Position Relative
     HVP => 'f',	 # Horizontal Vertical Position
     SGR => 'm',	 # Select Graphic Rendition
-    DSR => 'n',	 # Device Status Report (0 cursor position)
+    DSR => 'n',	 # Device Status Report (6 cursor position)
     SCP => 's',	 # Save Cursor Position
     RCP => 'u',	 # Restore Cursor Position
     );
