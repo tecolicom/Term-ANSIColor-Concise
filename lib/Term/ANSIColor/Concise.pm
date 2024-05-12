@@ -657,7 +657,7 @@ C<{NAME}>.
     VPR n   Vertical Position Relative
     HVP n,m Horizontal Vertical Position
     SGR n*  Select Graphic Rendition
-    DSR n   Device Status Report (0 cursor position)
+    DSR n   Device Status Report (6 cursor position)
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 

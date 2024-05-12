@@ -237,7 +237,7 @@ Native CSI (Control Sequence Introducer) sequences in the form of
     VPR n   Vertical Position Relative
     HVP n,m Horizontal Vertical Position
     SGR n*  Select Graphic Rendition
-    DSR n   Device Status Report (0 cursor position)
+    DSR n   Device Status Report (6 cursor position)
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 
