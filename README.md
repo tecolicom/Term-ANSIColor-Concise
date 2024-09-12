@@ -101,8 +101,21 @@ be produced.  See ["ENVIRONMENT"](#environment) section.
     Produce CSI (Control Sequence Introducer) sequence by name with
     numeric parameters.  Parameter _name_ is one of standard (ICH, CUU,
     CUD, CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, IL, DL, DCH, SU, SD, ECH,
-    VPA, VPR, HVP, SGR, DSR, SCP, RCP) or non-standard (CSI, OSC, RIS,
-    DECSC, DECRC, DECEC, DECDC).
+    VPA, VPR, HVP, SGR, DSR, SCP, RCP) or non-standard (CPR, STBM, CSI,
+    OSC, RIS, DECSC, DECRC, DECEC, DECDC).
+
+- **csi\_report**(_name_, _n_, _string_)
+
+    Extracts parameters from the response string returned from the
+    terminal.  _n_ specifies the number of parameters included in the
+    response.
+
+    Currently, only `CPR` (Cursor Position Report) is effective as
+    _name_.  The current cursor position can be obtained from the
+    response string resulting from the `DSR` (Device Status Report)
+    sequence as follows.
+
+        my($line, $column) = csi_report('CPR', 2, $answer);
 
 # COLOR SPEC
 
@@ -240,6 +253,11 @@ Native CSI (Control Sequence Introducer) sequences in the form of
     DSR n   Device Status Report (6 cursor position)
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
+
+And there are some non-standard CSI sequenes.
+
+    CPR  n,m Cursor Position Report – VT100 to Host
+    STBM n,m Set Top and Bottom Margins
 
 These names can be followed by optional numerical parameters, using
 comma (`,`) or semicolon (`;`) to separate multiple ones, with
@@ -469,7 +487,9 @@ this module capability and would be a good use-case.
 
 [https://no-color.org/](https://no-color.org/)
 
-https://www.ecma-international.org/wp-content/uploads/ECMA-48\_5th\_edition\_june\_1991.pdf
+[https://www.ecma-international.org/wp-content/uploads/ECMA-48\_5th\_edition\_june\_1991.pdf](https://www.ecma-international.org/wp-content/uploads/ECMA-48_5th_edition_june_1991.pdf)
+
+[https://vt100.net/docs/vt100-ug/](https://vt100.net/docs/vt100-ug/)
 
 # AUTHOR
 

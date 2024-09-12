@@ -9,7 +9,7 @@ use utf8;
 use Exporter 'import';
 our @EXPORT      = qw();
 our @EXPORT_OK   = qw(
-    ansi_color ansi_color_24 ansi_code ansi_pair csi_code
+    ansi_color ansi_color_24 ansi_code ansi_pair csi_code csi_report
     cached_ansi_color
     map_256_to_6 map_to_256
     );
@@ -242,36 +242,40 @@ use constant {
 };
 
 my %csi_terminator = (
-    ICH => '@',	 # Insert Character
-    CUU => 'A',	 # Cursor up
-    CUD => 'B',	 # Cursor Down
-    CUF => 'C',	 # Cursor Forward
-    CUB => 'D',	 # Cursor Back
-    CNL => 'E',	 # Cursor Next Line
-    CPL => 'F',	 # Cursor Previous line
-    CHA => 'G',	 # Cursor Horizontal Absolute
-    CUP => 'H',	 # Cursor Position
-    ED  => 'J',	 # Erase in Display (0 after, 1 before, 2 entire, 3 w/buffer)
-    EL  => 'K',	 # Erase in Line (0 after, 1 before, 2 entire)
-    IL  => 'L',	 # Insert Line
-    DL  => 'M',	 # Delete Line
-    DCH => 'P',	 # Delete Character
-    SU  => 'S',	 # Scroll Up
-    SD  => 'T',	 # Scroll Down
-    ECH => 'X',	 # Erase Character
-    VPA => 'd',	 # Vertical Position Absolute
+    ICH => '@',  # Insert Character
+    CUU => 'A',  # Cursor up
+    CUD => 'B',  # Cursor Down
+    CUF => 'C',  # Cursor Forward
+    CUB => 'D',  # Cursor Back
+    CNL => 'E',  # Cursor Next Line
+    CPL => 'F',  # Cursor Previous line
+    CHA => 'G',  # Cursor Horizontal Absolute
+    CUP => 'H',  # Cursor Position
+    ED  => 'J',  # Erase in Display (0 after, 1 before, 2 entire, 3 w/buffer)
+    EL  => 'K',  # Erase in Line (0 after, 1 before, 2 entire)
+    IL  => 'L',  # Insert Line
+    DL  => 'M',  # Delete Line
+    DCH => 'P',  # Delete Character
+    SU  => 'S',  # Scroll Up
+    SD  => 'T',  # Scroll Down
+    ECH => 'X',  # Erase Character
+    VPA => 'd',  # Vertical Position Absolute
     VPR => 'e',  # Vertical Position Relative
-    HVP => 'f',	 # Horizontal Vertical Position
-    SGR => 'm',	 # Select Graphic Rendition
-    DSR => 'n',	 # Device Status Report (6 cursor position)
-    SCP => 's',	 # Save Cursor Position
-    RCP => 'u',	 # Restore Cursor Position
+    HVP => 'f',  # Horizontal Vertical Position
+    SGR => 'm',  # Select Graphic Rendition
+    DSR => 'n',  # Device Status Report (6 cursor position)
+    SCP => 's',  # Save Cursor Position
+    RCP => 'u',  # Restore Cursor Position
+
+    # Non-standard
+    CPR  => 'R', # Cursor Position Report – VT100 to Host
+    STBM => 'r', # Set Top and Bottom Margins
     );
 
 my %other_sequence = (
-    CSI => "\e[",     # Control Sequence Introducer
-    OSC => "\e]",     # Operating System Command
-    RIS => "\ec",     # Reset to Initial State
+    CSI => "\e[",       # Control Sequence Introducer
+    OSC => "\e]",       # Operating System Command
+    RIS => "\ec",       # Reset to Initial State
     DECSC => "\e7",     # DEC Save Cursor
     DECRC => "\e8",     # DEC Restore Cursor
     DECEC => "\e[?25h", # DEC Enable Cursor
@@ -283,14 +287,18 @@ sub csi_code {
     if (my $seq = $other_sequence{$name}) {
 	return $seq;
     }
-    my $c = $csi_terminator{$name} or do {
-	warn "$name: Unknown ANSI name.\n";
-	return '';
-    };
+    my $c = $csi_terminator{$name} or die "$name: Unknown ANSI name.\n";
     if ($name eq 'SGR' and @_ == 1 and $_[0] == 0) {
 	@_ = ();
     }
     CSI . join(';', @_) . $c;
+}
+
+sub csi_report {
+    my($name, $n, $report) = @_;
+    my $c = $csi_terminator{$name} or die "$name: Unknown ANSI name.\n";
+    my $format = quotemeta(CSI) . join(';', ('(\d+)') x $n) . $c;
+    $report =~ /$format/;
 }
 
 sub ansi_code {
@@ -513,8 +521,21 @@ by B<ansi_code("Z")>.
 Produce CSI (Control Sequence Introducer) sequence by name with
 numeric parameters.  Parameter I<name> is one of standard (ICH, CUU,
 CUD, CUF, CUB, CNL, CPL, CHA, CUP, ED, EL, IL, DL, DCH, SU, SD, ECH,
-VPA, VPR, HVP, SGR, DSR, SCP, RCP) or non-standard (CSI, OSC, RIS,
-DECSC, DECRC, DECEC, DECDC).
+VPA, VPR, HVP, SGR, DSR, SCP, RCP) or non-standard (CPR, STBM, CSI,
+OSC, RIS, DECSC, DECRC, DECEC, DECDC).
+
+=item B<csi_report>(I<name>, I<n>, I<string>)
+
+Extracts parameters from the response string returned from the
+terminal.  I<n> specifies the number of parameters included in the
+response.
+
+Currently, only C<CPR> (Cursor Position Report) is effective as
+I<name>.  The current cursor position can be obtained from the
+response string resulting from the C<DSR> (Device Status Report)
+sequence as follows.
+
+    my($line, $column) = csi_report('CPR', 2, $answer);
 
 =back
 
@@ -660,6 +681,11 @@ C<{NAME}>.
     DSR n   Device Status Report (6 cursor position)
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
+
+And there are some non-standard CSI sequenes.
+
+    CPR  n,m Cursor Position Report – VT100 to Host
+    STBM n,m Set Top and Bottom Margins
 
 These names can be followed by optional numerical parameters, using
 comma (C<,>) or semicolon (C<;>) to separate multiple ones, with
@@ -902,7 +928,9 @@ L<https://en.wikipedia.org/wiki/X11_color_names>
 
 L<https://no-color.org/>
 
-https://www.ecma-international.org/wp-content/uploads/ECMA-48_5th_edition_june_1991.pdf
+L<https://www.ecma-international.org/wp-content/uploads/ECMA-48_5th_edition_june_1991.pdf>
+
+L<https://vt100.net/docs/vt100-ug/>
 
 =head1 AUTHOR
 
