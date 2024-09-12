@@ -2,6 +2,11 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+2.07 2024-09-12T01:19:56Z
+
+    - support CPR and STBM sequence
+    - implement csi_report() function
+
 2.06 2024-05-09T08:40:54Z
 
     - now ansi_color() returns result list in array context
