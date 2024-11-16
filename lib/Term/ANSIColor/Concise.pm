@@ -270,16 +270,19 @@ my %csi_terminator = (
     # Non-standard
     CPR  => 'R', # Cursor Position Report – VT100 to Host
     STBM => 'r', # Set Top and Bottom Margins
+    SLRM => 's', # Set Left Right Margins
     );
 
 my %other_sequence = (
-    CSI => "\e[",       # Control Sequence Introducer
-    OSC => "\e]",       # Operating System Command
-    RIS => "\ec",       # Reset to Initial State
-    DECSC => "\e7",     # DEC Save Cursor
-    DECRC => "\e8",     # DEC Restore Cursor
-    DECEC => "\e[?25h", # DEC Enable Cursor
-    DECDC => "\e[?25l", # DEC Disable Cursor
+    CSI => "\e[",         # Control Sequence Introducer
+    OSC => "\e]",         # Operating System Command
+    RIS => "\ec",         # Reset to Initial State
+    DECSC => "\e7",       # DEC Save Cursor
+    DECRC => "\e8",       # DEC Restore Cursor
+    DECEC => "\e[?25h",   # DEC Enable Cursor
+    DECDC => "\e[?25l",   # DEC Disable Cursor
+    DECELRM => "\e[?69h", # DEC Enable Left Right Margin Mode
+    DECDLRM => "\e[?69l", # DEC Disable Left Right Margin Mode
     );
 
 sub csi_code {
@@ -686,6 +689,7 @@ And there are some non-standard CSI sequenes.
 
     CPR  n,m Cursor Position Report – VT100 to Host
     STBM n,m Set Top and Bottom Margins
+    SLRM n,m Set Left Right Margins
 
 These names can be followed by optional numerical parameters, using
 comma (C<,>) or semicolon (C<;>) to separate multiple ones, with
@@ -698,13 +702,15 @@ These sequences do not start with CSI, and do not take parameters.
 VT100 compatible terminal usually support these, and does not support
 C<SCP> and C<RCP> CSI code.
 
-    CSI    Control Sequence Introducer
-    OSC    Operating System Command
-    RIS    Reset to Initial State
-    DECSC  DEC Save Cursor
-    DECRC  DEC Restore Cursor
-    DECEC  DEC Enable Cursor
-    DECDC  DEC Disable Cursor
+    CSI      Control Sequence Introducer
+    OSC      Operating System Command
+    RIS      Reset to Initial State
+    DECSC    DEC Save Cursor
+    DECRC    DEC Restore Cursor
+    DECEC    DEC Enable Cursor
+    DECDC    DEC Disable Cursor
+    DECELRM  DEC Enable Left Right Margin Mode
+    DECDLRM  DEC Disable Left Right Margin Mode
 
 =head2 EXAMPLES
 

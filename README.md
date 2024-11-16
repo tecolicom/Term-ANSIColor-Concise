@@ -258,6 +258,7 @@ And there are some non-standard CSI sequenes.
 
     CPR  n,m Cursor Position Report – VT100 to Host
     STBM n,m Set Top and Bottom Margins
+    SLRM n,m Set Left Right Margins
 
 These names can be followed by optional numerical parameters, using
 comma (`,`) or semicolon (`;`) to separate multiple ones, with
@@ -270,13 +271,15 @@ These sequences do not start with CSI, and do not take parameters.
 VT100 compatible terminal usually support these, and does not support
 `SCP` and `RCP` CSI code.
 
-    CSI    Control Sequence Introducer
-    OSC    Operating System Command
-    RIS    Reset to Initial State
-    DECSC  DEC Save Cursor
-    DECRC  DEC Restore Cursor
-    DECEC  DEC Enable Cursor
-    DECDC  DEC Disable Cursor
+    CSI      Control Sequence Introducer
+    OSC      Operating System Command
+    RIS      Reset to Initial State
+    DECSC    DEC Save Cursor
+    DECRC    DEC Restore Cursor
+    DECEC    DEC Enable Cursor
+    DECDC    DEC Disable Cursor
+    DECELRM  DEC Enable Left Right Margin Mode
+    DECDLRM  DEC Disable Left Right Margin Mode
 
 ## EXAMPLES
 
