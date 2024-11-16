@@ -2,6 +2,11 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+2.08 2024-11-16T05:38:13Z
+
+    - add "Left Right Margin Mode" sequence
+    - treat nul, vt, np, U+2028, U+2029 as EOL
+
 2.07 2024-09-12T01:19:56Z
 
     - support CPR and STBM sequence
