@@ -369,6 +369,14 @@ sub cached_ansi_color {
     wantarray ? @result : join('', @result);
 }
 
+sub IsEOL {
+    <<"END";
+0000\t0000
+000A\t000D
+2028\t2029
+END
+}
+
 use Scalar::Util qw(blessed);
 
 sub apply_color {
@@ -386,9 +394,9 @@ sub apply_color {
 	my($s, $e, $el) = @{ $cache->{$color} //= [ ansi_pair($color) ] };
 	state $reset = qr{ \e\[[0;]*m (?: \e\[[0;]*[Km] )* }x;
 	if ($el) {
-	    s/(\A|(?<=[\r\n])|$reset)\K(?<x>[^\e\r\n]+|(?<!\n))/${s}$+{x}${e}/mg;
+	    s/(\A|(?<=\p{IsEOL})|$reset)\K(?<x>[^\e\p{IsEOL}]+|(?<!\n))/${s}$+{x}${e}/g;
 	} else {
-	    s/(\A|(?<=[\r\n])|$reset)\K(?<x>[^\e\r\n]+)/${s}$+{x}${e}/mg;
+	    s/(\A|(?<=\p{IsEOL})|$reset)\K(?<x>[^\e\p{IsEOL}]+)/${s}$+{x}${e}/g;
 	}
 	return $_;
     }
@@ -396,11 +404,11 @@ sub apply_color {
 	my($s, $e, $el) = @{ $cache->{$color} //= [ ansi_pair($color) ] };
 	state $reset = qr{ \e\[[0;]*m (?: \e\[[0;]*[Km] )* }x;
 	if ($el) {
-	    s/(?:\A|(?:[\r\n](?!\z)|$reset++))\K/${s}/g;
-	    s/([\r\n]|(?<![\r\n])\z)/${e}${1}/g;
+	    s/(?:\A|(?:\p{IsEOL}(?!\z)|$reset++))\K/${s}/g;
+	    s/(\p{IsEOL}|(?<!\p{IsEOL})\z)/${e}${1}/g;
 	} else {
-	    s/(?:\A|[\r\n]|$reset++)(?=.)\K/${s}/g;
-	    s/(?<!\e\[[Km])([\r\n]|(?<=[^\r\n])\z)/${e}${1}/g;
+	    s/(?:\A|\p{IsEOL}|$reset++)(?=.)\K/${s}/g;
+	    s/(?<!\e\[[Km])(\p{IsEOL}|(?<=\P{IsEOL})\z)/${e}${1}/g;
 	}
 	return $_;
     }
