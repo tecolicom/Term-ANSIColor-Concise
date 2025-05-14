@@ -158,11 +158,12 @@ my %numbers = (
 my $colorspec_re = qr{
       (?<toggle> /)                      # /
     | (?<reset> \^)                      # ^
-    # RGB colors with modifier
-    | ((?<color>(?!)
-    | (?<hex>    [0-9a-f]{6}             ## 24bit hex
-             | \#[0-9a-f]{3,} )          ## generic hex
-    | (?<dec> \(\d+,\d+,\d+\) )          ## 24bit decimal
+    # RGB/HSL colors with modifier
+    | ((?<fullcolor>(?!)
+    | (?<hex>     [0-9a-f]{6}            ## RGB 24bit hex
+             | \#([0-9a-f]{3})+ )        ## RGB generic hex
+    | (?<dec>(rgb)? \(\d+,\d+,\d+\) )    ## RGB 24bit decimal
+    | (?<hsl> hsl   \(\d+,\d+,\d+\) )    ## HSL decimal
     | < (?<name> \w+ ) >                 ## <colorname>
       )
       (?<mod> ([-+]\w+)* )               ## color adjustment tones
@@ -200,6 +201,12 @@ sub ansi_numbers {
         elsif (my $dec = $+{dec}) {
             my @rgb = $dec =~ /(\d+)/g;
             croak "Unexpected value: $dec." if grep { $_ > 255 } @rgb;
+            push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
+        }
+        elsif (my $hsl = $+{hsl}) {
+            my @hsl = $hsl =~ /(\d+)/g;
+            require   Colouring::In;
+            my @rgb = Colouring::In->hsl(@hsl)->colour;
             push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
         }
         elsif ($+{c256}) {
