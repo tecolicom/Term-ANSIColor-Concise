@@ -1,3 +1,5 @@
+# -*- indent-tabs-mode: nil -*-
+
 package Term::ANSIColor::Concise;
 
 our $VERSION = "2.08";
@@ -33,12 +35,12 @@ our $NO_CUMULATIVE //= $ENV{ANSICOLOR_NO_CUMULATIVE};
 
 my @nonlinear = do {
     map { ( $_->[0] ) x $_->[1] } (
-	[ 0, 75 ], #   0 ..  74
-	[ 1, 40 ], #  75 .. 114
-	[ 2, 40 ], # 115 .. 154
-	[ 3, 40 ], # 155 .. 194
-	[ 4, 40 ], # 195 .. 234
-	[ 5, 21 ], # 235 .. 255
+        [ 0, 75 ], #   0 ..  74
+        [ 1, 40 ], #  75 .. 114
+        [ 2, 40 ], # 115 .. 154
+        [ 3, 40 ], # 155 .. 194
+        [ 4, 40 ], # 195 .. 234
+        [ 5, 21 ], # 235 .. 255
     );
 };
 
@@ -46,10 +48,10 @@ sub map_256_to_6 {
     use integer;
     my $i = shift;
     if ($LINEAR_256) {
-	5 * $i / 255;
+        5 * $i / 255;
     } else {
-	# ( $i - 35 ) / 40;
-	$nonlinear[$i];
+        # ( $i - 35 ) / 40;
+        $nonlinear[$i];
     }
 }
 
@@ -66,18 +68,18 @@ sub ansi256_number {
     my $code = shift;
     my($r, $g, $b, $gray);
     if ($code =~ /^([0-5])([0-5])([0-5])$/) {
-	($r, $g, $b) = ($1, $2, $3);
+        ($r, $g, $b) = ($1, $2, $3);
     }
     elsif (my($n) = $code =~ /^L(\d+)/i) {
-	$n > 25 and croak "Color spec error: $code.";
-	if ($n == 0 or $n == 25) {
-	    $r = $g = $b = $n / 5;
-	} else {
-	    $gray = $n - 1;
-	}
+        $n > 25 and croak "Color spec error: $code.";
+        if ($n == 0 or $n == 25) {
+            $r = $g = $b = $n / 5;
+        } else {
+            $gray = $n - 1;
+        }
     }
     else {
-	croak "Color spec error: $code.";
+        croak "Color spec error: $code.";
     }
     defined $gray ? ($gray + 232) : ($r*36 + $g*6 + $b + 16);
 }
@@ -87,21 +89,21 @@ sub rgb24_number {
     my($rx, $gx, $bx) = @_;
     my($r, $g, $b, $gray);
     if ($rx != 0 and $rx != 255 and $rx == $gx and $rx == $bx) {
-	if ($LINEAR_GRAY) {
-	    ##
-	    ## Divide area into 25 segments, and map to BLACK and 24 GRAYS
-	    ##
-	    $gray = $rx * 25 / 255 - 1;
-	    if ($gray < 0) {
-		$r = $g = $b = 0;
-		$gray = undef;
-	    }
-	} else {
-	    ## map to 8, 18, 28, ... 238
-	    $gray = min(23, ($rx - 3) / 10);
-	}
+        if ($LINEAR_GRAY) {
+            ##
+            ## Divide area into 25 segments, and map to BLACK and 24 GRAYS
+            ##
+            $gray = $rx * 25 / 255 - 1;
+            if ($gray < 0) {
+                $r = $g = $b = 0;
+                $gray = undef;
+            }
+        } else {
+            ## map to 8, 18, 28, ... 238
+            $gray = min(23, ($rx - 3) / 10);
+        }
     } else {
-	($r, $g, $b) = map { map_256_to_6 $_ } $rx, $gx, $bx;
+        ($r, $g, $b) = map { map_256_to_6 $_ } $rx, $gx, $bx;
     }
     defined $gray ? ($gray + 232) : ($r*36 + $g*6 + $b + 16);
 }
@@ -115,64 +117,64 @@ sub rgbhex {
     my $max = (2 ** ($len * 4)) - 1;
     my @rgb24 = map { hex($_) * 255 / $max } $rgb =~ /[0-9a-z]{$len}/gi or die;
     if ($mod) {
-	require  Term::ANSIColor::Concise::Transform;
-	@rgb24 = Term::ANSIColor::Concise::Transform::transform($mod, @rgb24);
+        require  Term::ANSIColor::Concise::Transform;
+        @rgb24 = Term::ANSIColor::Concise::Transform::transform($mod, @rgb24);
     }
     if ($RGB24) {
-	return (2, @rgb24);
+        return (2, @rgb24);
     } else {
-	return (5, rgb24_number @rgb24);
+        return (5, rgb24_number @rgb24);
     }
 }
 
 my %numbers = (
-    ';' => undef,	# ; : NOP
-    N   => undef,	# N : None (NOP)
-    E => 'EL',		# E : Erase Line
-    Z => 0,		# Z : Zero (Reset)
-    D => 1,		# D : Double Strike (Bold)
-    P => 2,		# P : Pale (Dark)
-    I => 3,		# I : Italic
-    U => 4,		# U : Underline
-    F => 5,		# F : Flash (Blink: Slow)
-    Q => 6,		# Q : Quick (Blink: Rapid)
-    S => 7,		# S : Stand out (Reverse)
-    H => 8,		# H : Hide (Concealed)
-    X => 9,		# X : Cross out
-    K => 30, k => 90,	# K : Kuro (Black)
-    R => 31, r => 91,	# R : Red  
-    G => 32, g => 92,	# G : Green
-    Y => 33, y => 93,	# Y : Yellow
-    B => 34, b => 94,	# B : Blue 
-    M => 35, m => 95,	# M : Magenta
-    C => 36, c => 96,	# C : Cyan 
-    W => 37, w => 97,	# W : White
+    ';' => undef,       # ; : NOP
+    N   => undef,       # N : None (NOP)
+    E => 'EL',          # E : Erase Line
+    Z => 0,             # Z : Zero (Reset)
+    D => 1,             # D : Double Strike (Bold)
+    P => 2,             # P : Pale (Dark)
+    I => 3,             # I : Italic
+    U => 4,             # U : Underline
+    F => 5,             # F : Flash (Blink: Slow)
+    Q => 6,             # Q : Quick (Blink: Rapid)
+    S => 7,             # S : Stand out (Reverse)
+    H => 8,             # H : Hide (Concealed)
+    X => 9,             # X : Cross out
+    K => 30, k => 90,   # K : Kuro (Black)
+    R => 31, r => 91,   # R : Red  
+    G => 32, g => 92,   # G : Green
+    Y => 33, y => 93,   # Y : Yellow
+    B => 34, b => 94,   # B : Blue 
+    M => 35, m => 95,   # M : Magenta
+    C => 36, c => 96,   # C : Cyan 
+    W => 37, w => 97,   # W : White
     );
 
 my $colorspec_re = qr{
-      (?<toggle> /)			 # /
-    | (?<reset> \^)			 # ^
+      (?<toggle> /)                      # /
+    | (?<reset> \^)                      # ^
     # RGB colors with modifier
     | ((?<color>(?!)
-    | (?<hex>	 [0-9a-f]{6}		 ## 24bit hex
-	     | \#[0-9a-f]{3,} )		 ## generic hex
-    | (?<dec> \(\d+,\d+,\d+\) )		 ## 24bit decimal
-    | < (?<name> \w+ ) >		 ## <colorname>
+    | (?<hex>    [0-9a-f]{6}             ## 24bit hex
+             | \#[0-9a-f]{3,} )          ## generic hex
+    | (?<dec> \(\d+,\d+,\d+\) )          ## 24bit decimal
+    | < (?<name> \w+ ) >                 ## <colorname>
       )
-      (?<mod> ([-+]\w+)* )		 ## color adjustment tones
+      (?<mod> ([-+]\w+)* )               ## color adjustment tones
     | (?!))
     # Basic 256/16 colors
-    | (?<c256>	 [0-5][0-5][0-5]	 # 216 (6x6x6) colors
-	     | L([01][0-9]|[2][0-5]) )   # 24 gray levels + B/W
-    | (?<c16>  [KRGYBMCW] )		 # 16 colors
+    | (?<c256>   [0-5][0-5][0-5]         # 216 (6x6x6) colors
+             | L([01][0-9]|[2][0-5]) )   # 24 gray levels + B/W
+    | (?<c16>  [KRGYBMCW] )              # 16 colors
     # Effects and controls
-    | (?<efct> ~?[;NZDPIUFQSHX] )	 # effects
-    | (?<csi>  \{ (?<csi_name>[A-Z]+)	 # other CSI
-		  (?<P> \( )?		 # optional (
-		  (?<csi_param>[\d,;]*)	 # 0;1;2
-		  (?(<P>) \) )		 # closing )
-	       \}
-	     | (?<csi_abbr>[E]) )	 # abbreviation
+    | (?<efct> ~?[;NZDPIUFQSHX] )        # effects
+    | (?<csi>  \{ (?<csi_name>[A-Z]+)    # other CSI
+                  (?<P> \( )?            # optional (
+                  (?<csi_param>[\d,;]*)  # 0;1;2
+                  (?(<P>) \) )           # closing )
+               \}
+             | (?<csi_abbr>[E]) )        # abbreviation
 }xni;
 
 sub ansi_numbers {
@@ -181,76 +183,76 @@ sub ansi_numbers {
     my $toggle = ToggleValue->new(value => 10);
 
     while (m{\G (?: $colorspec_re | (?<err> .+ ) ) }xig) {
-	if ($+{toggle}) {
-	    $toggle->toggle;
-	}
-	elsif ($+{reset}) {
-	    $toggle->reset;
-	}
-	elsif ($+{hex}) {
-	    push @numbers, 38 + $toggle->value, rgbhex($+{hex}, $+{mod});
-	}
-	elsif (my $dec = $+{dec}) {
-	    my @rgb = $dec =~ /(\d+)/g;
-	    croak "Unexpected value: $dec." if grep { $_ > 255 } @rgb;
-	    my $hex = sprintf "%02X%02X%02X", @rgb;
-	    push @numbers, 38 + $toggle->value, rgbhex($hex, $+{mod});
-	}
-	elsif ($+{c256}) {
-	    push @numbers, 38 + $toggle->value, 5, ansi256_number $+{c256};
-	}
-	elsif ($+{c16}) {
-	    push @numbers, $numbers{$+{c16}} + $toggle->value;
-	}
-	elsif ($+{efct}) {
-	    my $efct = uc $+{efct};
-	    my $offset = $efct =~ s/^~// ? 20 : 0;
-	    if (defined (my $n = $numbers{$efct})) {
-		push @numbers, $n + $offset;
-	    }
-	}
-	elsif ($+{csi}) {
-	    push @numbers, do {
-		if ($+{csi_abbr}) {
-		    [ $numbers{uc $+{csi_abbr}} ];
-		} else {
-		    [ uc $+{csi_name}, $+{csi_param} =~ /\d+/g ];
-		}
-	    };
-	}
-	elsif ($+{name}) {
-	    state $colornames = do {
-		require Graphics::ColorNames;
-		Graphics::ColorNames->new;
-	    };
-	    if (my $rgb = $colornames->hex($+{name})) {
-		push @numbers, 38 + $toggle->value, rgbhex($rgb, $+{mod});
-	    } else {
-		croak "Unknown color name: $+{name}.";
-	    }
-	}
-	elsif (my $err = $+{err}) {
-	    croak "Color spec error: \"$err\" in \"$_\"."
-	}
-	else {
-	    croak "$_: Something strange.";
-	}
+        if ($+{toggle}) {
+            $toggle->toggle;
+        }
+        elsif ($+{reset}) {
+            $toggle->reset;
+        }
+        elsif ($+{hex}) {
+            push @numbers, 38 + $toggle->value, rgbhex($+{hex}, $+{mod});
+        }
+        elsif (my $dec = $+{dec}) {
+            my @rgb = $dec =~ /(\d+)/g;
+            croak "Unexpected value: $dec." if grep { $_ > 255 } @rgb;
+            my $hex = sprintf "%02X%02X%02X", @rgb;
+            push @numbers, 38 + $toggle->value, rgbhex($hex, $+{mod});
+        }
+        elsif ($+{c256}) {
+            push @numbers, 38 + $toggle->value, 5, ansi256_number $+{c256};
+        }
+        elsif ($+{c16}) {
+            push @numbers, $numbers{$+{c16}} + $toggle->value;
+        }
+        elsif ($+{efct}) {
+            my $efct = uc $+{efct};
+            my $offset = $efct =~ s/^~// ? 20 : 0;
+            if (defined (my $n = $numbers{$efct})) {
+                push @numbers, $n + $offset;
+            }
+        }
+        elsif ($+{csi}) {
+            push @numbers, do {
+                if ($+{csi_abbr}) {
+                    [ $numbers{uc $+{csi_abbr}} ];
+                } else {
+                    [ uc $+{csi_name}, $+{csi_param} =~ /\d+/g ];
+                }
+            };
+        }
+        elsif ($+{name}) {
+            state $colornames = do {
+                require Graphics::ColorNames;
+                Graphics::ColorNames->new;
+            };
+            if (my $rgb = $colornames->hex($+{name})) {
+                push @numbers, 38 + $toggle->value, rgbhex($rgb, $+{mod});
+            } else {
+                croak "Unknown color name: $+{name}.";
+            }
+        }
+        elsif (my $err = $+{err}) {
+            croak "Color spec error: \"$err\" in \"$_\"."
+        }
+        else {
+            croak "$_: Something strange.";
+        }
     } continue {
-	if ($SPLIT_ANSI) {
-	    my $index = first { not ref $numbers[$_] } keys @numbers;
-	    if (defined $index) {
-		my @sgr = splice @numbers, $index;
-		push @numbers, [ 'SGR', @sgr ];
-	    }
-	}
+        if ($SPLIT_ANSI) {
+            my $index = first { not ref $numbers[$_] } keys @numbers;
+            if (defined $index) {
+                my @sgr = splice @numbers, $index;
+                push @numbers, [ 'SGR', @sgr ];
+            }
+        }
     }
     @numbers;
 }
 
 use constant {
-    CSI   => "\e[",	# Control Sequence Introducer
-    RESET => "\e[m",	# SGR Reset
-    EL    => "\e[K",	# Erase Line
+    CSI   => "\e[",     # Control Sequence Introducer
+    RESET => "\e[m",    # SGR Reset
+    EL    => "\e[K",    # Erase Line
 };
 
 my %csi_terminator = (
@@ -300,11 +302,11 @@ my %other_sequence = (
 sub csi_code {
     my $name = shift;
     if (my $seq = $other_sequence{$name}) {
-	return $seq;
+        return $seq;
     }
     my $c = $csi_terminator{$name} or die "$name: Unknown ANSI name.\n";
     if ($name eq 'SGR' and @_ == 1 and $_[0] == 0) {
-	@_ = ();
+        @_ = ();
     }
     CSI . join(';', @_) . $c;
 }
@@ -321,16 +323,16 @@ sub ansi_code {
     my @numbers = ansi_numbers $spec;
     my @code;
     while (@numbers) {
-	my $item = shift @numbers;
-	if (ref($item) eq 'ARRAY') {
-	    push @code, csi_code @$item;
-	} else {
-	    my @sgr = ($item);
-	    while (@numbers and not ref $numbers[0]) {
-		push @sgr, shift @numbers;
-	    }
-	    push @code, csi_code 'SGR', @sgr;
-	}
+        my $item = shift @numbers;
+        if (ref($item) eq 'ARRAY') {
+            push @code, csi_code @$item;
+        } else {
+            my @sgr = ($item);
+            while (@numbers and not ref $numbers[0]) {
+                push @sgr, shift @numbers;
+            }
+            push @code, csi_code 'SGR', @sgr;
+        }
     }
     join '', @code;
 }
@@ -340,20 +342,20 @@ sub ansi_pair {
     my $el = 0;
     my $start = ansi_code $spec // '';
     my $end = $start eq '' ? '' : do {
-	if ($start =~ /(.*)(\e\[[0;]*K)(.*)/) {
-	    $el = 1;
-	    if ($3) {
-		$1 . EL . RESET;
-	    } else {
-		EL . RESET;
-	    }
-	} else {
-	    if ($NO_RESET_EL) {
-		RESET;
-	    } else {
-		RESET . EL;
-	    }
-	}
+        if ($start =~ /(.*)(\e\[[0;]*K)(.*)/) {
+            $el = 1;
+            if ($3) {
+                $1 . EL . RESET;
+            } else {
+                EL . RESET;
+            }
+        } else {
+            if ($NO_RESET_EL) {
+                RESET;
+            } else {
+                RESET . EL;
+            }
+        }
     };
     ($start, $end, $el);
 }
@@ -371,11 +373,11 @@ sub cached_ansi_color {
     my $cache = shift;
     my @result;
     while (@_ >= 2) {
-	my($spec, $text) = splice @_, 0, 2;
-	for my $color (ref $spec eq 'ARRAY' ? @$spec : $spec) {
-	    $text = apply_color($cache, $color, $text);
-	}
-	push @result, $text;
+        my($spec, $text) = splice @_, 0, 2;
+        for my $color (ref $spec eq 'ARRAY' ? @$spec : $spec) {
+            $text = apply_color($cache, $color, $text);
+        }
+        push @result, $text;
     }
     croak "Wrong number of parameters." if @_;
     wantarray ? @result : join('', @result);
@@ -394,35 +396,35 @@ use Scalar::Util qw(blessed);
 sub apply_color {
     (my($cache, $color), local($_)) = @_;
     if (ref $color eq 'CODE') {
-	return $color->($_);
+        return $color->($_);
     }
     elsif (blessed $color and $color->can('call')) {
-	return $color->call;
+        return $color->call;
     }
     elsif ($NO_COLOR) {
         return $_;
     }
     elsif ($NO_CUMULATIVE) { # old behavior
-	my($s, $e, $el) = @{ $cache->{$color} //= [ ansi_pair($color) ] };
-	state $reset = qr{ \e\[[0;]*m (?: \e\[[0;]*[Km] )* }x;
-	if ($el) {
-	    s/(\A|(?<=\p{IsEOL})|$reset)\K(?<x>[^\e\p{IsEOL}]+|(?<!\n))/${s}$+{x}${e}/g;
-	} else {
-	    s/(\A|(?<=\p{IsEOL})|$reset)\K(?<x>[^\e\p{IsEOL}]+)/${s}$+{x}${e}/g;
-	}
-	return $_;
+        my($s, $e, $el) = @{ $cache->{$color} //= [ ansi_pair($color) ] };
+        state $reset = qr{ \e\[[0;]*m (?: \e\[[0;]*[Km] )* }x;
+        if ($el) {
+            s/(\A|(?<=\p{IsEOL})|$reset)\K(?<x>[^\e\p{IsEOL}]+|(?<!\n))/${s}$+{x}${e}/g;
+        } else {
+            s/(\A|(?<=\p{IsEOL})|$reset)\K(?<x>[^\e\p{IsEOL}]+)/${s}$+{x}${e}/g;
+        }
+        return $_;
     }
     else {
-	my($s, $e, $el) = @{ $cache->{$color} //= [ ansi_pair($color) ] };
-	state $reset = qr{ \e\[[0;]*m (?: \e\[[0;]*[Km] )* }x;
-	if ($el) {
-	    s/(?:\A|(?:\p{IsEOL}(?!\z)|$reset++))\K/${s}/g;
-	    s/(\p{IsEOL}|(?<!\p{IsEOL})\z)/${e}${1}/g;
-	} else {
-	    s/(?:\A|\p{IsEOL}|$reset++)(?=.)\K/${s}/g;
-	    s/(?<!\e\[[Km])(\p{IsEOL}|(?<=\P{IsEOL})\z)/${e}${1}/g;
-	}
-	return $_;
+        my($s, $e, $el) = @{ $cache->{$color} //= [ ansi_pair($color) ] };
+        state $reset = qr{ \e\[[0;]*m (?: \e\[[0;]*[Km] )* }x;
+        if ($el) {
+            s/(?:\A|(?:\p{IsEOL}(?!\z)|$reset++))\K/${s}/g;
+            s/(\p{IsEOL}|(?<!\p{IsEOL})\z)/${e}${1}/g;
+        } else {
+            s/(?:\A|\p{IsEOL}|$reset++)(?=.)\K/${s}/g;
+            s/(?<!\e\[[Km])(\p{IsEOL}|(?<=\P{IsEOL})\z)/${e}${1}/g;
+        }
+        return $_;
     }
 }
 
