@@ -42,6 +42,7 @@
       },
       "runtime" : {
          "requires" : {
+            "Colouring::In" : "0.27",
             "Graphics::ColorNames" : "v3.0.0",
             "List::Util" : "0",
             "Scalar::Util" : "0",

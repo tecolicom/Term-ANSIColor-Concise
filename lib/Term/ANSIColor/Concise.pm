@@ -107,12 +107,17 @@ sub rgb24_number {
 }
 
 sub rgbhex {
-    my $rgb = shift =~ s/^#//r;
+    my($rgb, $mod) = @_;
+    $rgb  =~ s/^#//;
     my $len = length $rgb;
     croak "$rgb: Invalid RGB value." if $len == 0 || $len % 3;
     $len /= 3;
     my $max = (2 ** ($len * 4)) - 1;
     my @rgb24 = map { hex($_) * 255 / $max } $rgb =~ /[0-9a-z]{$len}/gi or die;
+    if ($mod) {
+	require  Term::ANSIColor::Concise::Transform;
+	@rgb24 = Term::ANSIColor::Concise::Transform::transform($mod, @rgb24);
+    }
     if ($RGB24) {
 	return (2, @rgb24);
     } else {
@@ -147,21 +152,28 @@ my %numbers = (
 my $colorspec_re = qr{
       (?<toggle> /)			 # /
     | (?<reset> \^)			 # ^
-    | (?<hex>	 [0-9a-f]{6}		 # 24bit hex
-	     | \#[0-9a-f]{3,} )		 # generic hex
-    | (?<rgb>  \(\d+,\d+,\d+\) )	 # 24bit decimal
+    # RGB colors with modifier
+    | ((?<color>(?!)
+    | (?<hex>	 [0-9a-f]{6}		 ## 24bit hex
+	     | \#[0-9a-f]{3,} )		 ## generic hex
+    | (?<dec> \(\d+,\d+,\d+\) )		 ## 24bit decimal
+    | < (?<name> \w+ ) >		 ## <colorname>
+      )
+      (?<mod> ([-+]\w+)* )		 ## color adjustment tones
+    | (?!))
+    # Basic 256/16 colors
     | (?<c256>	 [0-5][0-5][0-5]	 # 216 (6x6x6) colors
-	     | L(?:[01][0-9]|[2][0-5]) ) # 24 gray levels + B/W
+	     | L([01][0-9]|[2][0-5]) )   # 24 gray levels + B/W
     | (?<c16>  [KRGYBMCW] )		 # 16 colors
+    # Effects and controls
     | (?<efct> ~?[;NZDPIUFQSHX] )	 # effects
-    | (?<csi>  { (?<csi_name>[A-Z]+)	 # other CSI
-		 (?<P> \( )?		 # optional (
-		 (?<csi_param>[\d,;]*)	 # 0;1;2
-		 (?(<P>) \) )		 # closing )
-	       }
+    | (?<csi>  \{ (?<csi_name>[A-Z]+)	 # other CSI
+		  (?<P> \( )?		 # optional (
+		  (?<csi_param>[\d,;]*)	 # 0;1;2
+		  (?(<P>) \) )		 # closing )
+	       \}
 	     | (?<csi_abbr>[E]) )	 # abbreviation
-    | < (?<name> \w+ ) >		 # <colorname>
-}xi;
+}xni;
 
 sub ansi_numbers {
     local $_ = shift // '';
@@ -176,13 +188,13 @@ sub ansi_numbers {
 	    $toggle->reset;
 	}
 	elsif ($+{hex}) {
-	    push @numbers, 38 + $toggle->value, rgbhex($+{hex});
+	    push @numbers, 38 + $toggle->value, rgbhex($+{hex}, $+{mod});
 	}
-	elsif (my $rgb = $+{rgb}) {
-	    my @rgb = $rgb =~ /(\d+)/g;
-	    croak "Unexpected value: $rgb." if grep { $_ > 255 } @rgb;
+	elsif (my $dec = $+{dec}) {
+	    my @rgb = $dec =~ /(\d+)/g;
+	    croak "Unexpected value: $dec." if grep { $_ > 255 } @rgb;
 	    my $hex = sprintf "%02X%02X%02X", @rgb;
-	    push @numbers, 38 + $toggle->value, rgbhex($hex);
+	    push @numbers, 38 + $toggle->value, rgbhex($hex, $+{mod});
 	}
 	elsif ($+{c256}) {
 	    push @numbers, 38 + $toggle->value, 5, ansi256_number $+{c256};
@@ -212,7 +224,7 @@ sub ansi_numbers {
 		Graphics::ColorNames->new;
 	    };
 	    if (my $rgb = $colornames->hex($+{name})) {
-		push @numbers, 38 + $toggle->value, rgbhex($rgb);
+		push @numbers, 38 + $toggle->value, rgbhex($rgb, $+{mod});
 	    } else {
 		croak "Unknown color name: $+{name}.";
 	    }
