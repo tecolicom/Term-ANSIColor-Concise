@@ -108,22 +108,26 @@ sub rgb24_number {
     defined $gray ? ($gray + 232) : ($r*36 + $g*6 + $b + 16);
 }
 
-sub rgbhex {
-    my($rgb, $mod) = @_;
+sub rgb24 {
+    my $rgb = shift;
     $rgb  =~ s/^#//;
     my $len = length $rgb;
     croak "$rgb: Invalid RGB value." if $len == 0 || $len % 3;
     $len /= 3;
     my $max = (2 ** ($len * 4)) - 1;
-    my @rgb24 = map { hex($_) * 255 / $max } $rgb =~ /[0-9a-z]{$len}/gi or die;
+    map { hex($_) * 255 / $max } $rgb =~ /[0-9a-z]{$len}/gi;
+}
+
+sub rgbseq {
+    my($mod, @rgb) = @_;
     if ($mod) {
         require  Term::ANSIColor::Concise::Transform;
-        @rgb24 = Term::ANSIColor::Concise::Transform::transform($mod, @rgb24);
+        @rgb = Term::ANSIColor::Concise::Transform::transform($mod, @rgb);
     }
     if ($RGB24) {
-        return (2, @rgb24);
+        return (2, @rgb);
     } else {
-        return (5, rgb24_number @rgb24);
+        return (5, rgb24_number @rgb);
     }
 }
 
@@ -190,13 +194,13 @@ sub ansi_numbers {
             $toggle->reset;
         }
         elsif ($+{hex}) {
-            push @numbers, 38 + $toggle->value, rgbhex($+{hex}, $+{mod});
+            my @rgb = rgb24($+{hex});
+            push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
         }
         elsif (my $dec = $+{dec}) {
             my @rgb = $dec =~ /(\d+)/g;
             croak "Unexpected value: $dec." if grep { $_ > 255 } @rgb;
-            my $hex = sprintf "%02X%02X%02X", @rgb;
-            push @numbers, 38 + $toggle->value, rgbhex($hex, $+{mod});
+            push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
         }
         elsif ($+{c256}) {
             push @numbers, 38 + $toggle->value, 5, ansi256_number $+{c256};
@@ -225,8 +229,8 @@ sub ansi_numbers {
                 require Graphics::ColorNames;
                 Graphics::ColorNames->new;
             };
-            if (my $rgb = $colornames->hex($+{name})) {
-                push @numbers, 38 + $toggle->value, rgbhex($rgb, $+{mod});
+            if (my @rgb = $colornames->rgb($+{name})) {
+                push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
             } else {
                 croak "Unknown color name: $+{name}.";
             }
