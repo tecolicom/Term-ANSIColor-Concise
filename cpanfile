@@ -1,6 +1,6 @@
 requires 'perl', '5.014';
 
-requires 'List::Util';
+requires 'List::Util', '1.45';
 requires 'Scalar::Util';
 requires 'Graphics::ColorNames', 'v3';
 requires 'Colouring::In', '0.27';

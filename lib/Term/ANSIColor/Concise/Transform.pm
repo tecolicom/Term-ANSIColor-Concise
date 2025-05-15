@@ -72,7 +72,7 @@ sub hsl_by_luminance {
 sub transform {
     my($tones, @rgb24) = @_;
     my $color = Colouring::In->rgb(@rgb24);
-    while ($tones =~ /(?<tone>(?<mark>[-+*%])(?<com>[A-Za-z])(?<abs>\d*))/xng) {
+    while ($tones =~ /(?<tone>(?<mark>[-+*%])(?<com>[A-Za-z])(?<abs>\d*))/xg) {
         my($tone, $mark, $com, $abs) = ($+{tone}, $+{mark}//'', $+{com}, $+{abs}//0);
         my $val = $mark eq '-' ? -$abs : $abs;
         my %com = map { $_ => 1 } $com =~ /./g;

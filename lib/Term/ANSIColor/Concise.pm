@@ -121,8 +121,8 @@ sub rgb24 {
 sub rgbseq {
     my($mod, @rgb) = @_;
     if ($mod) {
-        require  Term::ANSIColor::Concise::Transform;
-        @rgb = Term::ANSIColor::Concise::Transform::transform($mod, @rgb);
+        require Term::ANSIColor::Concise::Transform;
+        @rgb  = Term::ANSIColor::Concise::Transform::transform($mod, @rgb);
     }
     if ($RGB24) {
         return (2, @rgb);
@@ -181,7 +181,7 @@ my $colorspec_re = qr{
                   (?(<P>) \) )           # closing )
                \}
              | (?<csi_abbr>[E]) )        # abbreviation
-}xni;
+}xi;
 
 sub ansi_numbers {
     local $_ = shift // '';
@@ -984,7 +984,7 @@ The following copyright notice applies to all the files provided in
 this distribution, including binary files, unless explicitly noted
 otherwise.
 
-Copyright ©︎ 2015-2024 Kazumasa Utashiro
+Copyright ©︎ 2015-2025 Kazumasa Utashiro
 
 
 =head1 LICENSE

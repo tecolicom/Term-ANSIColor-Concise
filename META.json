@@ -44,7 +44,7 @@
          "requires" : {
             "Colouring::In" : "0.27",
             "Graphics::ColorNames" : "v3.0.0",
-            "List::Util" : "0",
+            "List::Util" : "1.45",
             "Scalar::Util" : "0",
             "perl" : "v5.14.0"
          }
