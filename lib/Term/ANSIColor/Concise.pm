@@ -166,14 +166,15 @@ my $colorspec_re = qr{
     | (?<hsl> hsl   \(\d+,\d+,\d+\) )    ## HSL decimal
     | < (?<name> \w+ ) >                 ## <colorname>
       )
-      (?<mod> ([-+]\w+)* )               ## color adjustment tones
+      (?<mod> ([-+*%]\w+)* )             ## color modifier
     | (?!))
     # Basic 256/16 colors
     | (?<c256>   [0-5][0-5][0-5]         # 216 (6x6x6) colors
              | L([01][0-9]|[2][0-5]) )   # 24 gray levels + B/W
     | (?<c16>  [KRGYBMCW] )              # 16 colors
     # Effects and controls
-    | (?<efct> ~?[;NZDPIUFQSHX] )        # effects
+    | (?<efct>   ~[DPIUFQSHX]            # ~effect
+             | [;NZDPIUFQSHX] )          # effect
     | (?<csi>  \{ (?<csi_name>[A-Z]+)    # other CSI
                   (?<P> \( )?            # optional (
                   (?<csi_param>[\d,;]*)  # 0;1;2
@@ -186,8 +187,11 @@ sub ansi_numbers {
     local $_ = shift // '';
     my @numbers;
     my $toggle = ToggleValue->new(value => 10);
+    my %F;
+    my $rgb_numbers = sub { 38 + $toggle->value, rgbseq($F{mod}, @_) };
 
     while (m{\G (?: $colorspec_re | (?<err> .+ ) ) }xig) {
+        %F = %+;
         if ($+{toggle}) {
             $toggle->toggle;
         }
@@ -196,18 +200,27 @@ sub ansi_numbers {
         }
         elsif ($+{hex}) {
             my @rgb = rgb24($+{hex});
-            push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
+            push @numbers, $rgb_numbers->(@rgb);
         }
         elsif (my $dec = $+{dec}) {
-            my @rgb = $dec =~ /(\d+)/g;
+            my @rgb = $dec =~ /\d+/g;
             croak "Unexpected value: $dec." if grep { $_ > 255 } @rgb;
-            push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
+            push @numbers, $rgb_numbers->(@rgb);
         }
         elsif (my $hsl = $+{hsl}) {
-            my @hsl = $hsl =~ /(\d+)/g;
+            my @hsl = $hsl =~ /\d+/g;
             require   Colouring::In;
             my @rgb = Colouring::In->hsl(@hsl)->colour;
-            push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
+            push @numbers, $rgb_numbers->(@rgb);
+        }
+        elsif ($+{name}) {
+            require Graphics::ColorNames;
+            state $colornames = Graphics::ColorNames->new;
+            if (my @rgb = $colornames->rgb($+{name})) {
+                push @numbers, $rgb_numbers->(@rgb);
+            } else {
+                croak "Unknown color name: $+{name}.";
+            }
         }
         elsif ($+{c256}) {
             push @numbers, 38 + $toggle->value, 5, ansi256_number $+{c256};
@@ -230,17 +243,6 @@ sub ansi_numbers {
                     [ uc $+{csi_name}, $+{csi_param} =~ /\d+/g ];
                 }
             };
-        }
-        elsif ($+{name}) {
-            state $colornames = do {
-                require Graphics::ColorNames;
-                Graphics::ColorNames->new;
-            };
-            if (my @rgb = $colornames->rgb($+{name})) {
-                push @numbers, 38 + $toggle->value, rgbseq($+{mod}, @rgb);
-            } else {
-                croak "Unknown color name: $+{name}.";
-            }
         }
         elsif (my $err = $+{err}) {
             croak "Color spec error: \"$err\" in \"$_\"."
