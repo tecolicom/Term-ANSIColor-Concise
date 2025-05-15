@@ -27,6 +27,12 @@ sub hsl {
     @hsl;
 }
 
+sub luminance {
+    my($r, $g, $b) = @_ == 1 ? $_[0]->colour : @_;
+    my $y = 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+    int($y / 255 * 100);
+}
+
 sub adjust {
     my($v, $amnt, $mark, $base) = @_;
     my %mark = map { $_ => 1 } $mark =~ /./g;
@@ -36,7 +42,31 @@ sub adjust {
     else               { $v += $amnt }
 
     if    ($mark{'%'}) { $v %= $base || 100 }
-    else               { $v = min(100, max(0, $v)) }
+    else               { $v  = min(100, max(0, $v)) }
+}
+
+sub hsl_by_luminance {
+    my($color, $target) = @_;
+    my($h, $s, $l) = hsl($color);
+    my $y = luminance($color);
+    my($low, $high) = $target > $y ? ($l, 100) : (0, $l);
+    use integer;
+    my($nl, $count);
+    my $dist = 2;
+    while (abs($y - $target) > 1) {
+        die "long loop ($count)\n" if ++$count >= 20;
+        $nl = ($low + $high) / 2;
+        my $new = Colouring::In->hsl($h, $s, $nl);
+        my $y = luminance($new);
+        if (abs($y - $target) <= $dist) {
+            last;
+        } elsif ($y < $target) {
+            $low = $nl;
+        } else {
+            $high = $nl;
+        }
+    }
+    Colouring::In->hsl($h, $s, $nl);
 }
 
 sub transform {
@@ -46,13 +76,20 @@ sub transform {
         my($tone, $mark, $com, $abs) = ($+{tone}, $+{mark}//'', $+{com}, $+{abs}//0);
         my $val = $mark eq '-' ? -$abs : $abs;
         my %com = map { $_ => 1 } $com =~ /./g;
+        my %mark = map { $_ => 1 } $mark =~ /./g;
         $color = do {
-            my $is = sub { any { lc $com eq $_ } @_ };
             # Lightness
             if ($com{l}) {
                 my($h, $s, $l) = hsl($color);
                 $l = adjust($l, $val, $mark);
                 Colouring::In->hsl($h, $s, $l);
+            }
+            # Luminance
+            elsif ($com{y}) {
+                my $y = luminance($color);
+                my($h, $s, $l) = hsl($color);
+                my $ny = adjust($y, $val, $mark);
+                hsl_by_luminance($color, $ny);
             }
             # Saturation
             elsif ($com{s}) {
