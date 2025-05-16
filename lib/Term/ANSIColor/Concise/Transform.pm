@@ -33,6 +33,12 @@ sub luminance {
     int($y / 255 * 100);
 }
 
+{
+    no strict 'refs';
+    no warnings 'redefine';
+    *{"Colouring::In::luminance"} = sub { luminance($_[0]) };
+}
+
 sub adjust {
     my($v, $amnt, $mark, $base) = @_;
     my %mark = map { $_ => 1 } $mark =~ /./g;
@@ -48,9 +54,10 @@ sub adjust {
 sub hsl_by_luminance {
     my($color, $target) = @_;
     my($h, $s, $ol) = hsl($color);
-    my $y = luminance($color);
+    my $y = $color->luminance;
+    return $color if abs($y - $target) < 1;
     my($low, $high) = $target > $y ? ($ol, 100) : (0, $ol);
-    my @y; @y[0,$ol,100] = (0,$y,100);
+    my @y; @y[0, $ol, 100] = (0, $y, 100);
     my $l = int(
         $low + ($high-$low) * ($target-$y[$low])/($y[$high]-$y[$low]) + 0.5
     );
@@ -59,7 +66,7 @@ sub hsl_by_luminance {
     while (abs($y - $target) >= $dist) {
         die "long loop ($count)\n" if ++$count >= 20;
         my $new = Colouring::In->hsl($h, $s, $l);
-        $y[$l] = my $y = luminance($new);
+        $y[$l] = my $y = $new->luminance;
         if (abs($y - $target) < $dist) {
             last;
         } elsif ($y < $target) {
@@ -84,12 +91,12 @@ sub transform {
             # Lightness
             if ($com{l}) {
                 my($h, $s, $l) = hsl($color);
-                $l = adjust($l, $val, $mark);
+                $l = $mark{'='} ? $val : adjust($l, $val, $mark);
                 Colouring::In->hsl($h, $s, $l);
             }
             # Luminance
             elsif ($com{y}) {
-                my $y = luminance($color);
+                my $y = $color->luminance;
                 my($h, $s, $l) = hsl($color);
                 my $ny = $mark{'='} ? $val : adjust($y, $val, $mark);
                 hsl_by_luminance($color, $ny);
@@ -100,9 +107,9 @@ sub transform {
                     my($h, $s, $l) = hsl($color);
                     Colouring::In->hsl($h, $val, $l);
                 } else {
-                    my @opt = $mark eq '*' ? 'relative' : ();
-                    $mark eq '-' ? $color->desaturate("$abs%", @opt)
-                                 : $color->  saturate("$abs%", @opt);
+                    my @opt = $mark{'*'} ? 'relative' : ();
+                    $mark{'-'} ? $color->desaturate("$abs%", @opt)
+                               : $color->  saturate("$abs%", @opt);
                 }
             }
             # Inverse
@@ -114,11 +121,13 @@ sub transform {
                 $color->greyscale;
             }
             # Hue / Complement
-            elsif ($com{h} || $com{c}) {
+            elsif ($com{h} || $com{c} || $com{r}) {
                 my($h, $s, $l) = hsl($color);
                 my $dig = $com{c} ? 180 : $val;
                 $h = ($h + $dig) % 360;
-                Colouring::In->hsl($h, $s, $l);
+                my $c = Colouring::In->hsl($h, $s, $l);
+                $com{r} ? hsl_by_luminance($c, $color->luminance)
+                        : $c;
             }
             else {
                 die "$tone: Invalid color adjustment parameter.\n";
