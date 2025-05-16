@@ -1,5 +1,6 @@
 requires 'perl', '5.014';
 
+requires 'aliased';
 requires 'List::Util', '1.45';
 requires 'Scalar::Util';
 requires 'Graphics::ColorNames', 'v3';
