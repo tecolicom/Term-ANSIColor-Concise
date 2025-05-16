@@ -24,7 +24,7 @@ sub hsl {
     my $hsl = $color->toHSL;
     my @hsl = $hsl =~ /[\d.]+/g;
     @hsl == 3 or die;
-    @hsl;
+    map int, @hsl;
 }
 
 sub luminance {
@@ -47,35 +47,38 @@ sub adjust {
 
 sub hsl_by_luminance {
     my($color, $target) = @_;
-    my($h, $s, $l) = hsl($color);
+    my($h, $s, $ol) = hsl($color);
     my $y = luminance($color);
-    my($low, $high) = $target > $y ? ($l, 100) : (0, $l);
-    use integer;
-    my($nl, $count);
+    my($low, $high) = $target > $y ? ($ol, 100) : (0, $ol);
+    my @y; @y[0,$ol,100] = (0,$y,100);
+    my $l = int(
+        $low + ($high-$low) * ($target-$y[$low])/($y[$high]-$y[$low]) + 0.5
+    );
+    my $count = 0;
     my $dist = 2;
-    while (abs($y - $target) > 1) {
+    while (abs($y - $target) >= $dist) {
         die "long loop ($count)\n" if ++$count >= 20;
-        $nl = ($low + $high) / 2;
-        my $new = Colouring::In->hsl($h, $s, $nl);
-        my $y = luminance($new);
-        if (abs($y - $target) <= $dist) {
+        my $new = Colouring::In->hsl($h, $s, $l);
+        $y[$l] = my $y = luminance($new);
+        if (abs($y - $target) < $dist) {
             last;
         } elsif ($y < $target) {
-            $low = $nl;
+            $low = $l;
         } else {
-            $high = $nl;
+            $high = $l;
         }
+        $l = int(($low + $high) / 2 + 0.5);
     }
-    Colouring::In->hsl($h, $s, $nl);
+    Colouring::In->hsl($h, $s, $l);
 }
 
 sub transform {
     my($tones, @rgb24) = @_;
     my $color = Colouring::In->rgb(@rgb24);
-    while ($tones =~ /(?<tone>(?<mark>[-+*%])(?<com>[A-Za-z])(?<abs>\d*))/xg) {
+    while ($tones =~ /(?<tone>(?<mark>[-+=*%])(?<com>[A-Za-z])(?<abs>\d*))/xg) {
         my($tone, $mark, $com, $abs) = ($+{tone}, $+{mark}//'', $+{com}, $+{abs}//0);
         my $val = $mark eq '-' ? -$abs : $abs;
-        my %com = map { $_ => 1 } $com =~ /./g;
+        my %com  = map { $_ => 1 } $com =~ /./g;
         my %mark = map { $_ => 1 } $mark =~ /./g;
         $color = do {
             # Lightness
@@ -88,14 +91,19 @@ sub transform {
             elsif ($com{y}) {
                 my $y = luminance($color);
                 my($h, $s, $l) = hsl($color);
-                my $ny = adjust($y, $val, $mark);
+                my $ny = $mark{'='} ? $val : adjust($y, $val, $mark);
                 hsl_by_luminance($color, $ny);
             }
             # Saturation
             elsif ($com{s}) {
-                my @opt = $mark eq '*' ? 'relative' : ();
-                $mark eq '-' ? $color->desaturate("$abs%", @opt)
-                             : $color->  saturate("$abs%", @opt);
+                if ($mark{'='}) {
+                    my($h, $s, $l) = hsl($color);
+                    Colouring::In->hsl($h, $val, $l);
+                } else {
+                    my @opt = $mark eq '*' ? 'relative' : ();
+                    $mark eq '-' ? $color->desaturate("$abs%", @opt)
+                                 : $color->  saturate("$abs%", @opt);
+                }
             }
             # Inverse
             elsif ($com{i}) {

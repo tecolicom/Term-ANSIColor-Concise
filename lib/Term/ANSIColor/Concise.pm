@@ -166,7 +166,7 @@ my $colorspec_re = qr{
     | (?<hsl> hsl   \(\d+,\d+,\d+\) )    ## HSL decimal
     | < (?<name> \w+ ) >                 ## <colorname>
       )
-      (?<mod> ([-+*%]\w+)* )             ## color modifier
+      (?<mod> ([-+=*%]\w+)* )            ## color modifier
     | (?!))
     # Basic 256/16 colors
     | (?<c256>   [0-5][0-5][0-5]         # 216 (6x6x6) colors
