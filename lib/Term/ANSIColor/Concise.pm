@@ -164,6 +164,7 @@ my $colorspec_re = qr{
              | \#([0-9a-f]{3})+ )        ## RGB generic hex
     | (?<dec>(rgb)? \(\d+,\d+,\d+\) )    ## RGB 24bit decimal
     | (?<hsl> hsl   \(\d+,\d+,\d+\) )    ## HSL decimal
+    | (?<lab> lab \(\d+,-?\d+,-?\d+\) )  ## Lab decimal
     | < (?<name> \w+ ) >                 ## <colorname>
       )
       (?<mod> ([-+=*%]\w+)* )            ## color modifier
@@ -211,6 +212,12 @@ sub ansi_numbers {
             my @hsl = $hsl =~ /\d+/g;
             require   Colouring::In;
             my @rgb = Colouring::In->hsl(@hsl)->colour;
+            push @numbers, $rgb_numbers->(@rgb);
+        }
+        elsif (my $lab = $+{lab}) {
+            my($L, $a, $b) = $lab =~ /-?\d+/g;
+            use aliased 'Term::ANSIColor::Concise::ColorObject';
+            my @rgb = ColorObject->lab($L, $a, $b)->rgb;
             push @numbers, $rgb_numbers->(@rgb);
         }
         elsif ($+{name}) {

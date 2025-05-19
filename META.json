@@ -44,6 +44,10 @@
          "requires" : {
             "Colouring::In" : "0.27",
             "Graphics::ColorNames" : "v3.0.0",
+            "Graphics::ColorNames::HTML" : "0",
+            "Graphics::ColorNames::Netscape" : "0",
+            "Graphics::ColorNames::Windows" : "0",
+            "Graphics::ColorObject" : "0",
             "List::Util" : "1.45",
             "Scalar::Util" : "0",
             "aliased" : "0",
