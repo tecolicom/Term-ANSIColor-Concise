@@ -19,13 +19,11 @@ use aliased 'Term::ANSIColor::Concise::Color';
 
 sub adjust {
     my($v, $amnt, $mark, $base) = @_;
-
-    if    ($mark->{'='}) { $v  = $amnt }
-    elsif ($mark->{'*'}) { $v *= $amnt / 100 }
-    else                 { $v += $amnt }
-
-    if    ($mark->{'%'}) { $v %= $base || 100 }
-    else                 { $v  = min(100, max(0, $v)) }
+    if    ($mark->{'-'}) { $v - $amnt }
+    elsif ($mark->{'+'}) { $v + $amnt }
+    elsif ($mark->{'='}) { $amnt }
+    elsif ($mark->{'*'}) { $v * $amnt / 100 }
+    elsif ($mark->{'%'}) { ($v + $amnt) % ($base || 100) }
 }
 
 sub transform {
@@ -33,48 +31,44 @@ sub transform {
     my $color = Color->rgb(@rgb24);
     while ($tones =~ /(?<tone>(?<m>[-+=*%])(?<c>[A-Za-z])(?<abs>\d*))/xg) {
         my($tone, $m, $c, $abs) = ($+{tone}, $+{m}//'', $+{c}, $+{abs}//0);
-        my $val  = $m eq '-' ? -$abs : $abs;
         my $com  = { map { $_ => 1 } $c =~ /./g };
         my $mark = { map { $_ => 1 } $m =~ /./g };
         $color = do {
             # Lightness
             if ($com->{l}) {
                 my($h, $s, $l) = $color->hsl;
-                $l = $mark->{'='} ? $val : adjust($l, $val, $mark);
-                Color->hsl($h, $s, $l);
+                Color->hsl($h, $s, adjust($l, $abs, $mark));
             }
             # Luminance
             elsif ($com->{y}) {
-                my $y = $color->luminance;
-                my($h, $s, $l) = $color->hsl;
-                my $ny = $mark->{'='} ? $val : adjust($y, $val, $mark);
-                $color->luminance($ny);
+                $color->luminance(adjust($color->luminance, $abs, $mark));
             }
             # Saturation
             elsif ($com->{s}) {
-                if ($mark->{'='}) {
-                    my($h, $s, $l) = $color->hsl;
-                    Color->hsl($h, $val, $l);
-                } else {
-                    my @opt = $mark->{'*'} ? 'relative' : ();
-                    $mark->{'-'} ? $color->desaturate("$abs%", @opt)
-                                 : $color->  saturate("$abs%", @opt);
-                }
+                my($h, $s, $l) = $color->hsl;
+                Color->hsl($h, adjust($s, $abs, $mark), $l);
             }
             # Inverse
             elsif ($com->{i}) {
-                $color->rgb(map 255 - $_, $color->rgb);
+                Color->rgb(map { 255 - $_ } $color->rgb);
             }
-            # Greyscale
+            # Luminance Grayscale
             elsif ($com->{g}) {
+                my($h, $s, $l) = $color->hsl;
+                my $y = $color->luminance;
+                my $g = int($y * 255 / 100);
+                Color->rgb($g, $g, $g)
+            }
+            # Lightness Grayscale
+            elsif ($com->{G}) {
                 $color->greyscale;
             }
             # Hue / Complement
             elsif ($com->{h} || $com->{c} || $com->{r}) {
                 my($h, $s, $l) = $color->hsl;
-                my $dig = $com->{c} ? 180 : $val;
-                $h = ($h + $dig) % 360;
-                my $c = Color->hsl($h, $s, $l);
+                my $dig = $com->{c} ? 180 : $abs;
+                $dig = -$dig if $mark->{'-'};
+                my $c = Color->hsl(($h + $dig) % 360, $s, $l);
                 $com->{r} ? $c->luminance($color->luminance)
                           : $c;
             }
