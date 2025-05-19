@@ -15,7 +15,8 @@ our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
 
 use Data::Dumper;
 use List::Util qw(min max any);
-use aliased 'Term::ANSIColor::Concise::Color';
+#use aliased 'Term::ANSIColor::Concise::Color';
+use aliased 'Term::ANSIColor::Concise::ColorObject' => 'Color';
 
 sub adjust {
     my($v, $amnt, $mark, $base) = @_;
