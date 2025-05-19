@@ -1,5 +1,11 @@
 # -*- indent-tabs-mode: nil -*-
 
+=head1 SEE ALSO
+
+L(<https://qiita.com/yoya/items/96c36b069e74398796f3>
+
+=cut
+
 package Term::ANSIColor::Concise::Color;
 
 our $VERSION = "2.08";
@@ -8,19 +14,14 @@ use v5.14;
 use warnings;
 use utf8;
 
-use Exporter 'import';
-our @EXPORT      = qw();
-our @EXPORT_OK   = qw();
-our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
-
 use Data::Dumper;
-
 use parent 'Colouring::In';
 
 sub rgb {
     my $self = shift;
+    my $class = ref $self ? ref $self : $self;
     if (@_) {
-        bless $self->SUPER::rgb(@_), $self;
+        bless $self->SUPER::rgb(@_), $class;
     } else {
         map int, $self->colour;
     }
@@ -28,19 +29,24 @@ sub rgb {
 
 sub hsl {
     my $self = shift;
+    my $class = ref $self ? ref $self : $self;
     if (@_) {
-        bless $self->SUPER::hsl(@_), $self;
+        bless $self->SUPER::hsl(@_), $class;
     } else {
-        $self->hslArray;
+        map int($_ + 0.5), $self->toHSL =~ /[\d.]+/g;
     }
 }
 
-sub hslArray {
-    my $color = shift;
-    my $hsl = $color->toHSL;
-    my @hsl = $hsl =~ /[\d.]+/g;
-    @hsl == 3 or die;
-    map int($_ + 0.5), @hsl;
+sub new {
+    my $self = shift;
+    my $class = ref $self ? ref $self : $self;
+    bless $self->SUPER::new(@_), $class;
+}
+
+sub greyscale {
+    my $self = shift;
+    my $class = ref $self ? ref $self : $self;
+    bless $self->SUPER::greyscale(@_), $class;
 }
 
 sub luminance {
@@ -52,10 +58,19 @@ sub luminance {
     }
 }
 
+our $LUMINANCE //= 'CIE';
+
 sub get_luminance {
     my $color = shift;
     my($r, $g, $b) = $color->rgb;
-    my $y = 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+    my $method = $LUMINANCE //= 'CIE';
+    my $y = do {
+        if ($LUMINANCE eq 'CIE') {
+            0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+        } elsif ($LUMINANCE eq 'ITU') {
+            0.299 * $r + 0.587 * $g + 0.114 * $b;
+        }
+    };
     int($y / 255 * 100);
 }
 
