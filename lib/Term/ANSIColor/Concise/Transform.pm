@@ -68,7 +68,14 @@ sub transform {
             elsif ($com->{G}) {
                 $color->greyscale;
             }
-            # Hue / Complement
+            # Rotate Hue
+            elsif ($com->{r} and $color->can('lch')) {
+                my $dig = $com->{c} ? 180 : $abs;
+                $dig = -$dig if $mark->{'-'};
+                my($l, $c, $h) = $color->lch;
+                Color->lch($l, $c, ($h + $dig) % 360);
+            }
+            # Hue Shift / Complement
             elsif ($com->{h} || $com->{c} || $com->{r}) {
                 my($h, $s, $l) = $color->hsl;
                 my $dig = $com->{c} ? 180 : $abs;
