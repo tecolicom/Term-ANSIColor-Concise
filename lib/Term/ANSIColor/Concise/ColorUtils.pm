@@ -16,7 +16,7 @@ use v5.14;
 use warnings;
 use utf8;
 
-use Data::Dumper::Concise;
+use Data::Dumper;
 use Graphics::ColorUtils;
 use List::Util qw(min max pairs);
 

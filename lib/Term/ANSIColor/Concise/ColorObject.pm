@@ -28,6 +28,7 @@ package Graphics::ColorObject {
     }
 }
 
+# RGB
 sub rgb {
     my $self = shift;
     my $class = ref $self || $self;
@@ -38,6 +39,7 @@ sub rgb {
     }
 }
 
+# HSL
 sub hsl {
     my $self = shift;
     my $class = ref $self || $self;
@@ -50,18 +52,18 @@ sub hsl {
     }
 }
 
+# Lab
 sub lab {
     my $self = shift;
     my $class = ref $self || $self;
     if (@_) {
-        my($L, $a, $b) = @_;
-        bless Graphics::ColorObject->new_Lab([ $L, $a, $b ]), $class;
+        bless Graphics::ColorObject->new_Lab(\@_), $class;
     } else {
-        my($L, $a, $b) = @{$self->as_Lab};
-        ($L, $a, $b);
+        @{$self->as_Lab};
     }
 }
 
+# Luv
 sub luv {
     my $self = shift;
     my $class = ref $self || $self;
@@ -74,12 +76,34 @@ sub luv {
     }
 }
 
-sub luminance {
-    my $color = shift;
+# LCHab
+sub lch {
+    my $self = shift;
+    my $class = ref $self || $self;
     if (@_) {
-        $color->set_luminance(@_);
+        bless Graphics::ColorObject->new_LCHab(\@_), $class;
     } else {
-        $color->get_luminance;
+        @{$self->as_LCHab};
+    }
+}
+
+# YIQ
+sub yiq {
+    my $self = shift;
+    my $class = ref $self || $self;
+    if (@_) {
+        bless Graphics::ColorObject->new_YIQ(\@_), $class;
+    } else {
+        @{$self->as_YIQ};
+    }
+}
+
+sub luminance {
+    my $self = shift;
+    if (@_) {
+        $self->set_luminance(@_);
+    } else {
+        $self->get_luminance;
     }
 }
 
@@ -91,23 +115,13 @@ sub set {
     @_;
 }
 
-our %LUM = (Lab => 1);
-
 sub get_luminance {
-    my $color = shift;
-    if    ($LUM{Lab}) { int $color->as_Lab->[0] }
-    elsif ($LUM{Luv}) { int $color->as_Luv->[0] }
-    elsif ($LUM{HSL}) { int($color->as_HSL->[2] * 100) }
-    else { die }
+    int $_[0] -> as_Lab -> [0];
 }
 
 sub set_luminance {
-    my $color = shift;
-    my $L = shift;
-    if    ($LUM{Lab}) { __PACKAGE__->lab(set([ 0 => $L ], $color->lab)) }
-    elsif ($LUM{Luv}) { __PACKAGE__->luv(set([ 0 => $L ], $color->luv)) }
-    elsif ($LUM{HSL}) { __PACKAGE__->hsl(set([ 2 => $L ], $color->hsl)) }
-    else { die }
+    my($self, $L) = @_;
+    __PACKAGE__->lab(set([ 0 => $L ], $self->lab));
 }
 
 1;
