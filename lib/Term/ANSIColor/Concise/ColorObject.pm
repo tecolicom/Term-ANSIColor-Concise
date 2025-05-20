@@ -30,7 +30,7 @@ package Graphics::ColorObject {
 
 sub rgb {
     my $self = shift;
-    my $class = ref $self ? ref $self : $self;
+    my $class = ref $self || $self;
     if (@_) {
         bless $self->SUPER::new_RGB255(\@_), $class;
     } else {
@@ -40,7 +40,7 @@ sub rgb {
 
 sub hsl {
     my $self = shift;
-    my $class = ref $self ? ref $self : $self;
+    my $class = ref $self || $self;
     if (@_) {
         my($h, $s, $l) = @_;
         bless $self->SUPER::new_HSL([ $h, $s/100, $l/100 ]), $class;
@@ -52,22 +52,22 @@ sub hsl {
 
 sub lab {
     my $self = shift;
-    my $class = ref $self ? ref $self : $self;
+    my $class = ref $self || $self;
     if (@_) {
         my($L, $a, $b) = @_;
-        bless Graphics::ColorObject->new_Lab([ $L, $a, $b]), $class;
+        bless Graphics::ColorObject->new_Lab([ $L, $a, $b ]), $class;
     } else {
         my($L, $a, $b) = @{$self->as_Lab};
-        map int, ($L, $a, $b);
+        ($L, $a, $b);
     }
 }
 
 sub luv {
     my $self = shift;
-    my $class = ref $self ? ref $self : $self;
+    my $class = ref $self || $self;
     if (@_) {
         my($L, $u, $v) = @_;
-        bless Graphics::ColorObject->new_Luv([ $L, $u / 100, $v / 100]), $class;
+        bless Graphics::ColorObject->new_Luv([ $L, $u / 100, $v / 100 ]), $class;
     } else {
         my($L, $u, $v) = @{$self->as_Lab};
         map int, ($L, $u * 100, $v * 100);

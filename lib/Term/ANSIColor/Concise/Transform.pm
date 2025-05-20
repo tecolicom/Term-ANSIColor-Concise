@@ -15,8 +15,10 @@ our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
 
 use Data::Dumper;
 use List::Util qw(min max any);
-#use aliased 'Term::ANSIColor::Concise::Color';
-use aliased 'Term::ANSIColor::Concise::ColorObject' => 'Color';
+
+use aliased;
+my $Color = alias 'Term::ANSIColor::Concise::' . ($ENV{COLOR_PACKAGE} || 'ColorObject');
+sub Color { $Color }
 
 sub adjust {
     my($v, $amnt, $mark, $base) = @_;
@@ -27,11 +29,13 @@ sub adjust {
     elsif ($mark->{'%'}) { ($v + $amnt) % ($base || 100) }
 }
 
+our $mod_re = qr/(?<m>[-+=*%])(?<c>[A-Za-z])(?<abs>\d*)/x;
+
 sub transform {
-    my($tones, @rgb24) = @_;
+    my($mods, @rgb24) = @_;
     my $color = Color->rgb(@rgb24);
-    while ($tones =~ /(?<tone>(?<m>[-+=*%])(?<c>[A-Za-z])(?<abs>\d*))/xg) {
-        my($tone, $m, $c, $abs) = ($+{tone}, $+{m}//'', $+{c}, $+{abs}//0);
+    while ($mods =~ /(?<mod>$mod_re)/xg) {
+        my($mod, $m, $c, $abs) = ($+{mod}, $+{m}//'', $+{c}, $+{abs}//0);
         my $com  = { map { $_ => 1 } $c =~ /./g };
         my $mark = { map { $_ => 1 } $m =~ /./g };
         $color = do {
@@ -74,7 +78,7 @@ sub transform {
                           : $c;
             }
             else {
-                die "$tone: Invalid color adjustment parameter.\n";
+                die "$mod: Invalid color adjustment parameter.\n";
             }
         };
     }

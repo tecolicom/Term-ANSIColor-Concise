@@ -19,7 +19,7 @@ use parent 'Colouring::In';
 
 sub rgb {
     my $self = shift;
-    my $class = ref $self ? ref $self : $self;
+    my $class = ref $self || $self;
     if (@_) {
         bless $self->SUPER::rgb(@_), $class;
     } else {
@@ -29,7 +29,7 @@ sub rgb {
 
 sub hsl {
     my $self = shift;
-    my $class = ref $self ? ref $self : $self;
+    my $class = ref $self || $self;
     if (@_) {
         bless $self->SUPER::hsl(@_), $class;
     } else {
@@ -39,13 +39,13 @@ sub hsl {
 
 sub new {
     my $self = shift;
-    my $class = ref $self ? ref $self : $self;
+    my $class = ref $self || $self;
     bless $self->SUPER::new(@_), $class;
 }
 
 sub greyscale {
     my $self = shift;
-    my $class = ref $self ? ref $self : $self;
+    my $class = ref $self || $self;
     bless $self->SUPER::greyscale(@_), $class;
 }
 
