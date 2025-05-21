@@ -20,11 +20,14 @@ use Data::Dumper;
 use parent 'Graphics::ColorObject';
 
 package Graphics::ColorObject {
+    no strict 'refs';
     no warnings 'redefine';
-    my $namecolor = \&__PACKAGE__::namecolor;
-    *namecolor = sub {
-        return undef if not defined $_[1];
-        goto $namecolor;
+    for my $name (qw(namecolor)) {
+        my $sub = \&{__PACKAGE__."::$name"};
+        *{$name} = sub {
+            $_[1] // return;
+            goto $sub;
+        }
     }
 }
 
