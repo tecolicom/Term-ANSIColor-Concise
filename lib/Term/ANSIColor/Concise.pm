@@ -156,15 +156,17 @@ my %numbers = (
     );
 
 my $colorspec_re = qr{
+    (?<spec>
       (?<toggle> /)                      # /
     | (?<reset> \^)                      # ^
     # RGB/HSL colors with modifier
     | ((?<fullcolor>(?!)
     | (?<hex>     [0-9a-f]{6}            ## RGB 24bit hex
              | \#([0-9a-f]{3})+ )        ## RGB generic hex
-    | (?<dec>(rgb)? \(\d+,\d+,\d+\) )    ## RGB 24bit decimal
-    | (?<hsl> hsl   \(\d+,\d+,\d+\) )    ## HSL decimal
-    | (?<lab> lab \(\d+,-?\d+,-?\d+\) )  ## Lab decimal
+    | (?<dec>(rgb)? \(\d+,\d+,\d+\) )    ## RGB 24bit decimal (0-255, 0-255, 0-255)
+    | (?<hsl> hsl   \(\d+,\d+,\d+\) )    ## HSL decimal (0-360, 0-100, 0-100)
+    | (?<lch> lch   \(\d+,\d+,\d+\) )    ## LCHab 24bit decimal (0-100, 0~130, 0-360)
+    | (?<lab> lab \(\d+,-?\d+,-?\d+\) )  ## Lab decimal (0-100, -128-127,  -128-127)
     | < (?<name> \w+ ) >                 ## <colorname>
       )
       (?<mod> ([-+=*%]\w+)* )            ## color modifier
@@ -182,7 +184,14 @@ my $colorspec_re = qr{
                   (?(<P>) \) )           # closing )
                \}
              | (?<csi_abbr>[E]) )        # abbreviation
+    )
+    (?(DEFINE)
+        (?<TRIPLET>\(-?\d+(\.\d+)?,-?\d+(\.\d+)?,-?\d+(\.\d+)?\)))
 }xi;
+
+use aliased;
+my $Color = alias 'Term::ANSIColor::Concise::' . ($ENV{COLOR_PACKAGE} || 'ColorObject');
+sub Color { $Color }
 
 sub ansi_numbers {
     local $_ = shift // '';
@@ -209,15 +218,21 @@ sub ansi_numbers {
             push @numbers, $rgb_numbers->(@rgb);
         }
         elsif (my $hsl = $+{hsl}) {
+            Color->can('hsl') or die "HSL format is not supported.\n";
             my @hsl = $hsl =~ /\d+/g;
-            require   Colouring::In;
-            my @rgb = Colouring::In->hsl(@hsl)->colour;
+            my @rgb = Color->hsl(@hsl)->rgb;
+            push @numbers, $rgb_numbers->(@rgb);
+        }
+        elsif (my $lch = $+{lch}) {
+            Color->can('lch') or die "LCHab format is not supported.\n";
+            my($L, $C, $H) = $lch =~ /-?\d+/g;
+            my @rgb = Color->lch($L, $C, $H)->rgb;
             push @numbers, $rgb_numbers->(@rgb);
         }
         elsif (my $lab = $+{lab}) {
+            Color->can('lab') or die "Lab format is not supported.\n";
             my($L, $a, $b) = $lab =~ /-?\d+/g;
-            use aliased 'Term::ANSIColor::Concise::ColorObject';
-            my @rgb = ColorObject->lab($L, $a, $b)->rgb;
+            my @rgb = Color->lab($L, $a, $b)->rgb;
             push @numbers, $rgb_numbers->(@rgb);
         }
         elsif ($+{name}) {
