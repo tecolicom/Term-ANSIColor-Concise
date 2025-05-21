@@ -20,9 +20,13 @@ our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
 use Carp;
 use Data::Dumper;
 $Data::Dumper::Sortkeys = 1;
+use List::Util qw(min max first);
 
 use Term::ANSIColor::Concise::Util;
-use List::Util qw(min max first);
+
+use aliased;
+my $Color = alias 'Term::ANSIColor::Concise::' . ($ENV{TAC_COLOR_PACKAGE} || 'ColorObject');
+sub Color { $Color }
 
 our $NO_NO_COLOR   //= $ENV{ANSICOLOR_NO_NO_COLOR};
 our $NO_COLOR      //= !$NO_NO_COLOR && defined $ENV{NO_COLOR};
@@ -121,8 +125,7 @@ sub rgb24 {
 sub rgbseq {
     my($mod, @rgb) = @_;
     if ($mod) {
-        require Term::ANSIColor::Concise::Transform;
-        @rgb  = Term::ANSIColor::Concise::Transform::transform($mod, @rgb);
+        @rgb  = transform($mod, @rgb);
     }
     if ($RGB24) {
         return (2, @rgb);
@@ -155,21 +158,23 @@ my %numbers = (
     W => 37, w => 97,   # W : White
     );
 
+use Term::ANSIColor::Concise::Transform qw(transform $mod_re);
+
 my $colorspec_re = qr{
     (?<spec>
       (?<toggle> /)                      # /
     | (?<reset> \^)                      # ^
-    # RGB/HSL colors with modifier
+    # Fullcolor with modifier
     | ((?<fullcolor>(?!)
-    | (?<hex>     [0-9a-f]{6}            ## RGB 24bit hex
-             | \#([0-9a-f]{3})+ )        ## RGB generic hex
-    | (?<dec>(rgb)? \(\d+,\d+,\d+\) )    ## RGB 24bit decimal (0-255, 0-255, 0-255)
-    | (?<hsl> hsl   \(\d+,\d+,\d+\) )    ## HSL decimal (0-360, 0-100, 0-100)
-    | (?<lch> lch   \(\d+,\d+,\d+\) )    ## LCHab 24bit decimal (0-100, 0~130, 0-360)
-    | (?<lab> lab \(\d+,-?\d+,-?\d+\) )  ## Lab decimal (0-100, -128-127,  -128-127)
-    | < (?<name> \w+ ) >                 ## <colorname>
+      | (?<hex>     [0-9a-f]{6}          ## RGB 24bit hex
+               | \#([0-9a-f]{3})+ )      ## RGB generic hex
+      | (?<dec>(rgb)? (?&TRIPLET) )      ## RGB 24bit decimal (0-255, 0-255, 0-255)
+      | (?<hsl> hsl   (?&TRIPLET) )      ## HSL   (0-360, 0-100, 0-100)
+      | (?<lch> lch   (?&TRIPLET) )      ## LCHab (0-100, 0~130, 0-360)
+      | (?<lab> lab   (?&TRIPLET) )      ## Lab   (0-100, -128-127, -128-127)
+      | < (?<name> \w+ ) >               ## <colorname>
       )
-      (?<mod> ([-+=*%]\w+)* )            ## color modifier
+      (?<mod> $mod_re* )                 ## color modifiers
     | (?!))
     # Basic 256/16 colors
     | (?<c256>   [0-5][0-5][0-5]         # 216 (6x6x6) colors
@@ -179,19 +184,17 @@ my $colorspec_re = qr{
     | (?<efct>   ~[DPIUFQSHX]            # ~effect
              | [;NZDPIUFQSHX] )          # effect
     | (?<csi>  \{ (?<csi_name>[A-Z]+)    # other CSI
-                  (?<P> \( )?            # optional (
+                  (?<P>   \( )?          # optional (
                   (?<csi_param>[\d,;]*)  # 0;1;2
                   (?(<P>) \) )           # closing )
                \}
              | (?<csi_abbr>[E]) )        # abbreviation
     )
     (?(DEFINE)
-        (?<TRIPLET>\(-?\d+(\.\d+)?,-?\d+(\.\d+)?,-?\d+(\.\d+)?\)))
+        (?<DIGIT>   -? \d+ (\.\d+)? )
+        (?<TRIPLET> \( (?&DIGIT), (?&DIGIT), (?&DIGIT) \) )
+    )
 }xi;
-
-use aliased;
-my $Color = alias 'Term::ANSIColor::Concise::' . ($ENV{COLOR_PACKAGE} || 'ColorObject');
-sub Color { $Color }
 
 sub ansi_numbers {
     local $_ = shift // '';

@@ -10,14 +10,14 @@ use utf8;
 
 use Exporter 'import';
 our @EXPORT      = qw();
-our @EXPORT_OK   = qw(transform);
+our @EXPORT_OK   = qw(transform $mod_re);
 our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
 
 use Data::Dumper;
 use List::Util qw(min max any);
 
 use aliased;
-my $Color = alias 'Term::ANSIColor::Concise::' . ($ENV{COLOR_PACKAGE} || 'ColorObject');
+my $Color = alias 'Term::ANSIColor::Concise::' . ($ENV{TAC_COLOR_PACKAGE} || 'ColorObject');
 sub Color { $Color }
 
 sub adjust {
