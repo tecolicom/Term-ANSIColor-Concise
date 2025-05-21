@@ -165,17 +165,17 @@ my $colorspec_re = qr{
       (?<toggle> /)                      # /
     | (?<reset> \^)                      # ^
     # Fullcolor with modifier
-    | ((?<fullcolor>(?!)
-      | (?<hex>     [0-9a-f]{6}          ## RGB 24bit hex
-               | \#([0-9a-f]{3})+ )      ## RGB generic hex
-      | (?<dec>(rgb)? (?&TRIPLET) )      ## RGB 24bit decimal (0-255, 0-255, 0-255)
-      | (?<hsl> hsl   (?&TRIPLET) )      ## HSL   (0-360, 0-100, 0-100)
-      | (?<lch> lch   (?&TRIPLET) )      ## LCHab (0-100, 0~130, 0-360)
-      | (?<lab> lab   (?&TRIPLET) )      ## Lab   (0-100, -128-127, -128-127)
-      | < (?<name> \w+ ) >               ## <colorname>
+    | ((?<fullcolor>
+         (?<hex>     [0-9a-f]{6}         ## RGB 24bit hex
+                | \#([0-9a-f]{3})+ )     ## RGB generic hex
+       | (?<dec>(rgb)? (?&TRIPLET) )     ## RGB 24bit decimal (0-255, 0-255, 0-255)
+       | (?<hsl> hsl   (?&TRIPLET) )     ## HSL   (0-360, 0-100, 0-100)
+       | (?<lch> lch   (?&TRIPLET) )     ## LCHab (0-100, 0~130, 0-360)
+       | (?<lab> lab   (?&TRIPLET) )     ## Lab   (0-100, -128-127, -128-127)
+       | < (?<name> \w+ ) >              ## <colorname>
+       )
+       (?<mod> $mod_re* )                ## color modifiers
       )
-      (?<mod> $mod_re* )                 ## color modifiers
-    | (?!))
     # Basic 256/16 colors
     | (?<c256>   [0-5][0-5][0-5]         # 216 (6x6x6) colors
              | L([01][0-9]|[2][0-5]) )   # 24 gray levels + B/W
