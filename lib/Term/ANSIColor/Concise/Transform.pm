@@ -10,7 +10,7 @@ use utf8;
 
 use Exporter 'import';
 our @EXPORT      = qw();
-our @EXPORT_OK   = qw(transform);
+our @EXPORT_OK   = qw(transform $mod_re);
 our %EXPORT_TAGS = (all => [ @EXPORT_OK ]);
 
 use Data::Dumper;
