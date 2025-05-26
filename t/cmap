@@ -43,15 +43,15 @@ warn()   { note "$@" >&2 ; }
 die()    { warn "$@" ; exit 1 ; }
 
 help() {
-    eval $(tgl_setup)
+    eval $(gol_setup)
     declare -A OPTS=(
 	[      man|m ]=
        	[     help|h ]=
        	[    usage|u ]=
        	[ continue|c ]=
     )
-    tgl_setup OPTS
-    tgl_getoptlong "$@"
+    gol_setup OPTS
+    gol_getoptlong "$@"
     shift $((OPTIND - 1))
     if [[ ${OPTS[man]} ]] ; then
 	perldoc $0
@@ -91,20 +91,20 @@ declare -A OPTS=(
     [     man       ]=
     [ include | I : ]=./lib
 )
-tgl_setup OPTS EXIT_ON_ERROR DEBUG= SAVETO=ARGV
-tgl_callback help  'help --help'
-tgl_callback man   'help --man'
-tgl_callback usage 'help --usage'
+gol_setup OPTS EXIT_ON_ERROR DEBUG= SAVETO=ARGV
+gol_callback help  'help --help'
+gol_callback man   'help --man'
+gol_callback usage 'help --usage'
 
 opt()   { [[ ${OPTS[$1]} ]] ; }
 type()  { echo ${OPTS[:$1]} ; }
 opts()  { echo ${OPTS[$1]} ; }
 
 label() { [[ $1 ]] || OPTS[label]='hasta la vista  '; }
-tgl_callback label -
+gol_callback label -
 
 trace() { [[ $1 ]] && set -x || set +x ; }
-tgl_callback trace -
+gol_callback trace -
 
 format() {
     [[ $# == 0 ]] && return
@@ -142,16 +142,16 @@ format() {
 	die "$1: unknown format"
     esac
 }
-tgl_callback format -
+gol_callback format -
 opt format && format $(opts format)
 
-tgl_getoptlong "$@"
+gol_getoptlong "$@"
 # shift $((OPTIND - 1))
 set -- "${ARGV[@]}"
 
 opt pkg     && export TAC_COLOR_PACKAGE=${OPTS[pkg]}
 opt include && export PERL5LIB=${OPTS[include]}:$PERL5LIB
-opt debug   && tgl_dump | column
+opt debug   && gol_dump | column
 
 declare -A xyz=(
     [x]=0 [y]=1 [z]=2

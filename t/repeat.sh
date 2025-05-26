@@ -26,10 +26,10 @@ declare -A OPT=(
     [ debug     | d + ]=0
     [ help      | h   ]=
 )
-tgl_setup OPT DEBUG=${DEBUG_ME:-}
-tgl_callback help - trace -
+gol_setup OPT DEBUG=${DEBUG_ME:-}
+gol_callback help - trace -
 getoptlong "$@" && shift $((OPTIND - 1))
-(( OPT[debug] >= 2 )) && tgl_dump | column >&2
+(( OPT[debug] >= 2 )) && gol_dump | column >&2
 [[ ! -v OPT[paragraph] ]] && OPT[paragraph]= || : ${OPT[paragraph]:=$'\n'} 
 
 case ${1:-} in
