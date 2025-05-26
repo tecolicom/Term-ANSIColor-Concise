@@ -43,7 +43,7 @@ warn()   { note "$@" >&2 ; }
 die()    { warn "$@" ; exit 1 ; }
 
 help() {
-    eval $(gol_setup)
+    eval "$(gol_setup)"
     declare -A OPTS=(
 	[      man|m ]=
        	[     help|h ]=
@@ -90,6 +90,7 @@ declare -A OPTS=(
     [   usage | u   ]=
     [     man       ]=
     [ include | I : ]=./lib
+    [ message     % ]="([BEGIN]=$'HELLO\n' [END]=$'\nGOODBY')"
 )
 gol_setup OPTS EXIT_ON_ERROR SAVETO=ARGV DEBUG=${DEBUG_ME:-}
 gol_callback help  'help --help'
@@ -151,7 +152,11 @@ set -- "${ARGV[@]}"
 
 opt pkg     && export TAC_COLOR_PACKAGE=${OPTS[pkg]}
 opt include && export PERL5LIB=${OPTS[include]}:$PERL5LIB
-opt debug   && gol_dump | column
+opt debug   && {
+    gol_dump | column
+    declare -p opt_mods
+    declare -p opt_message
+}
 
 declare -A xyz=(
     [x]=0 [y]=1 [z]=2
@@ -196,6 +201,10 @@ table() {
 (( $# > 0 )) && echo "$@"
 [[ ${#opt_mods[@]} == 0 ]] && opt_mods=(${OPTS[default]})
 
+[[ -v opt_message[BEGIN] ]] && echo "${opt_message[BEGIN]}"
+
 for mod in "${opt_mods[@]}" ; do
     table $mod
 done
+
+[[ -v opt_message[END] ]] && echo "${opt_message[END]}"
