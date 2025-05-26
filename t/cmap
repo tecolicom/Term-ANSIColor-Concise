@@ -51,7 +51,7 @@ help() {
        	[ continue|c ]=
     )
     gol_setup OPTS
-    gol_getoptlong "$@"
+    getoptlong "$@"
     shift $((OPTIND - 1))
     if [[ ${OPTS[man]} ]] ; then
 	perldoc $0
@@ -91,7 +91,7 @@ declare -A OPTS=(
     [     man       ]=
     [ include | I : ]=./lib
 )
-gol_setup OPTS EXIT_ON_ERROR DEBUG= SAVETO=ARGV
+gol_setup OPTS EXIT_ON_ERROR SAVETO=ARGV DEBUG=${DEBUG_ME:-}
 gol_callback help  'help --help'
 gol_callback man   'help --man'
 gol_callback usage 'help --usage'
@@ -145,7 +145,7 @@ format() {
 gol_callback format -
 opt format && format $(opts format)
 
-gol_getoptlong "$@"
+getoptlong "$@"
 # shift $((OPTIND - 1))
 set -- "${ARGV[@]}"
 
@@ -194,8 +194,8 @@ table() {
 }
 
 (( $# > 0 )) && echo "$@"
-[[ ${#mods[@]} == 0 ]] && mods=(${OPTS[default]})
+[[ ${#opt_mods[@]} == 0 ]] && opt_mods=(${OPTS[default]})
 
-for mod in "${mods[@]}" ; do
+for mod in "${opt_mods[@]}" ; do
     table $mod
 done
