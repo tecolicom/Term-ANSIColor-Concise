@@ -4,7 +4,7 @@ set -eu
 
 define() { IFS='\n' read -r -d '' ${1} || true ; }
 
-. "${0%/*}"/getoptlong.sh
+. "${0%/*}"/getoptlong/getoptlong.sh
 
 define pod <<"=cut"
 

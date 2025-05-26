@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. "${0%/*}"/getoptlong.sh
+. "${0%/*}"/getoptlong/getoptlong.sh
 
 set -eu
 
