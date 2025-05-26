@@ -4,10 +4,7 @@ set -eu
 
 define() { IFS='\n' read -r -d '' ${1} || true ; }
 
-myname="${0##*/}"
-mydir="${0%/*}"
-
-. $mydir/getoptlong.sh
+. "${0%/*}"/getoptlong.sh
 
 define pod <<"=cut"
 
@@ -24,7 +21,7 @@ define pod <<"=cut"
         -f # , --format    specify color format (*hsl, rgb, lch)
         -m # , --mod       set color modifier (ex. +r180%y50)
         -r   , --reverse   flip foreground/background color
-        -l # , --lead      set leader string
+        -L # , --lead      set leader string
         -l # , --label     set label string
         -C # , --column    set column number
         -o # , --order     set X,Y,Z order
@@ -75,7 +72,7 @@ declare -A OPTS=(
     [ default | D : ]="+r180%y50"
     [    mods | m @ ]=
     [     pkg | M : ]=
-    [    lead | l : ]="██  "
+    [    lead | L : ]="██  "
     [           X : ]=
     [           Y : ]=
     [           Z : ]=

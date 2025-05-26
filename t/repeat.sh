@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-mydir="${0%/*}"; . $mydir/getoptlong.sh
+. "${0%/*}"/getoptlong.sh
 
 set -eu
 
@@ -8,29 +8,29 @@ help() {
     cat <<-END
 	repeat count command
 	repeat [ options ] command
-	    -c#, --count=#    repeat count
-	    -i#, --sleep=#    interval time
-	    -p , --paragraph  print newline after command
-	    -x , --trace      trace execution (set -x)
-	    -d , --debug      debug mode
+	    -c#, --count=#        repeat count
+	    -i#, --sleep=#        interval time
+	    -p , --paragraph[=#]  print newline (or #) after each cycle
+	    -x , --trace          trace execution (set -x)
+	    -d , --debug          debug mode
 	END
     exit 0
 }
-trace() {
-    [[ $1 ]] && set -x || set +x
-}
+trace() { [[ $1 ]] && set -x || set +x ; }
 
 declare -A OPT=(
     [ count     | c : ]=1
-    [ sleep     | i : ]=
-    [ paragraph | p   ]=
+    [ sleep     | i : ]=0
+    [ paragraph | p ? ]=
     [ trace     | x   ]=
-    [ debug     | d + ]=
+    [ debug     | d + ]=0
     [ help      | h   ]=
 )
-tgl_setup OPT DEBUG=
+tgl_setup OPT DEBUG=${DEBUG_ME:-}
 tgl_callback help - trace -
 getoptlong "$@" && shift $((OPTIND - 1))
+(( OPT[debug] >= 2 )) && tgl_dump | column >&2
+[[ ! -v OPT[paragraph] ]] && OPT[paragraph]= || : ${OPT[paragraph]:=$'\n'} 
 
 case ${1:-} in
     [0-9]*) OPT[count]=$1 ; shift ;;
@@ -41,7 +41,7 @@ do
     eval "${@@Q}"
     if (( OPT[count] > 0 ))
     then
-	[[ ${OPT[paragraph]} ]] && echo
+	[[ ${OPT[paragraph]} ]] && echo -n "${OPT[paragraph]}"
 	[[ ${OPT[sleep]} ]] && sleep ${OPT[sleep]}
     fi
 done
