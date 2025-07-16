@@ -1,3 +1,5 @@
 [submodule "t/getoptlong"]
 	path = t/getoptlong
 	url = https://github.com/tecolicom/getoptlong.git
+	branch = main
+	update = merge
