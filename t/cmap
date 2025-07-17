@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
-set -eu
+set -euo pipefail
 
 define() { IFS='\n' read -r -d '' ${1} || true ; }
-
-. "${0%/*}"/getoptlong/getoptlong.sh
 
 define pod <<"=cut"
 
@@ -12,19 +10,19 @@ define pod <<"=cut"
 
 =head1 NAME
 
-    ... - Term::ANSIColor::Concise demo/test script
+    cmap - Term::ANSIColor::Concise demo/test script
 
 =head1 SYNOPSIS
 
-    ... [ options ]
+    cmap [ options ]
 
         -f # , --format    specify color format (*hsl, rgb, lch)
         -m # , --mod       set color modifier (ex. +r180%y50)
         -r   , --reverse   flip foreground/background color
-        -L # , --lead      set leader string
+        -L # , --leader    set leader string
         -l # , --label     set label string
         -C # , --column    set column number
-        -o # , --order     set X,Y,Z order
+        -o # , --xyz-order set X,Y,Z order
         -[XYZ] #           set X,Y,Z values
 
         -h   , --help      show help
@@ -33,129 +31,122 @@ define pod <<"=cut"
         -t   , --terse     terse message
         -q   , --quiet     quiet mode
         -v   , --verbose   verbose mode
-        -M # , --pkg       select color handling package
+        -M # , --package   select color handling package
         -I # , --include   include Perl module path
 
 =cut
 
-note()   { opt quiet && return ; echo "$@" ; }
+note()   { [[ $quiet ]] && return ; echo "$@" ; }
 warn()   { note "$@" >&2 ; }
 die()    { warn "$@" ; exit 1 ; }
 
-help() {
-    eval "$(gol_setup)"
-    declare -A OPTS=(
-	[      man|m ]=
-       	[     help|h ]=
-       	[    usage|u ]=
-       	[ continue|c ]=
-    )
-    gol_setup OPTS
-    getoptlong "$@"
-    shift $((OPTIND - 1))
-    if [[ ${OPTS[man]} ]] ; then
-	perldoc $0
-    else
+my_help() {
+    case $1 in
+    man)
+	perldoc $0 ;;
+    *)
 	sed -r \
 	    -e '/^$/N' \
 	    -e '/^\n*(#|=encoding)/d' \
 	    -e 's/^(\n*)=[a-z]+[0-9]* */\1/' \
 	    -e '/Version/q' \
 	    <<< $pod
-    fi
-    [[ $1 && ! ${OPTS[continue]} ]] && exit 0
-    return 0
+	;;
+    esac
+    exit
 }
+
+define USAGE <<END
+cmap - Term::ANSIColor::Concise demo/test script
+
+cmap [ options ]
+END
 
 declare -A OPTS=(
-    [  format | f : ]=hsl
-    [ default | D : ]="+r180%y50"
-    [    mods | m @ ]=
-    [     pkg | M : ]=
-    [    lead | L : ]="██  "
-    [           X : ]=
-    [           Y : ]=
-    [           Z : ]=
-    [   order | o : ]=
-    [   terse | t   ]=
-    [   quiet | q   ]=
-    [   label | l ? ]=
-    [ reverse | r   ]=
-    [  column | C : ]=
-    [ verbose | v   ]=
-    [  dryrun | n   ]=
-    [   debug | d + ]=
-    [   trace | x   ]=
-    [    help | h   ]=
-    [   usage | u   ]=
-    [     man       ]=
-    [ include | I : ]=./lib
-    [ message     % ]="([BEGIN]=$'HELLO\n' [END]=$'\nGOODBY')"
+    [&USAGE]="$USAGE"
+    [      format | f :!                                        ]=hsl
+    [ default-mod | D :                                         ]="+r180%y50"
+    [        mods | m @ # set color MODIFIER (ex. +r180%y50)    ]=
+    [     package | M : # select color handling PACKAGE         ]=
+    [      leader | L :                                         ]="██  "
+    [               X @                                         ]=
+    [               Y @                                         ]=
+    [               Z @                                         ]=
+    [   xyz-order | o :                                         ]=
+    [       terse | t                                           ]=
+    [       quiet | q                                           ]=
+    [       label | l ?!                                        ]=
+    [     reverse | r                                           ]=
+    [      column | C :                                         ]=
+    [     verbose | v                                           ]=
+    [      dryrun | n                                           ]=
+    [       debug | d +                                         ]=0
+    [       trace | x  !                                        ]=
+    [       usage | u                                           ]=
+    [         man                                               ]=
+    [     include | I : # include Perl module path              ]=./lib
+    [     message     %                                         ]=
+#   [     message     % #                                       ]="([BEGIN]=$'HELLO\n' [END]=$'\nGOODBY')"
 )
-gol_setup OPTS EXIT_ON_ERROR SAVETO=ARGV DEBUG=${DEBUG_ME:-}
-gol_callback help  'help --help'
-gol_callback man   'help --man'
-gol_callback usage 'help --usage'
 
-opt()   { [[ ${OPTS[$1]} ]] ; }
-type()  { echo ${OPTS[:$1]} ; }
-opts()  { echo ${OPTS[$1]} ; }
+. "${0%/*}"/getoptlong/getoptlong.sh -
+getoptlong init OPTS
+getoptlong callback man   'my_help'  \
+                    usage 'my_help'
+getoptlong callback --before X xyz Y xyz Z xyz
+xyz() { eval "$1=()" ; }
 
-label() { [[ $1 ]] || OPTS[label]='hasta la vista  '; }
-gol_callback label -
-
+label() { [[ $1 ]] || label='hasta la vista  '; }
 trace() { [[ $1 ]] && set -x || set +x ; }
-gol_callback trace -
 
 format() {
-    [[ $# == 0 ]] && return
-    case $1 in
+    (( $# == 0 )) && return
+    local _fmt=${@:$#}
+    case $_fmt in
     hsl)
-	OPTS[order]="x z y"
-	OPTS[X]="$(seq -s, 0 60 359)"  # Hue
-	OPTS[Y]="$(seq -s, 0 5 99)"    # Lightness
-	OPTS[Z]="20,80,100"            # Saturation
+	xyz_order="x z y"
+	X=($(seq 0 60 359))      # Hue
+	Y=($(seq 0 5 99))        # Lightness
+	Z=(20,80,100)            # Saturation
 	;;
     rgb)
-	OPTS[order]="x y z"
-	OPTS[X]="0 51 102 153 204 255" # Red
-	OPTS[Y]="$(seq -s, 0 15 255)"  # Green
-	OPTS[Z]="0,128,255"            # Blue
+	xyz_order="x y z"
+	X=(0 51 102 153 204 255) # Red
+	Y=($(seq 0 15 255))      # Green
+	Z=(0,128,255)            # Blue
 	;;
     rgb-chart)
-	OPTS[format]=rgb
-	OPTS[order]="x y z"
-	OPTS[X]="$(seq -s, 0 2 255)"   # Red
-	OPTS[Y]="$(seq -s, 0 15 255)"  # Green
-	OPTS[Z]="0,128,255"            # Blue
-	OPTS[label]=" "
-	OPTS[terse]=yes
-	OPTS[lead]=
-	OPTS[mod]=";"
+	format=rgb
+	xyz_order="x y z"
+	X=($(seq 0 2 255))       # Red
+	Y=($(seq 0 15 255))      # Green
+	Z=(0,128,255)            # Blue
+	label=" "
+	terse=yes
+	leader=
+	mod=";"
 	;;
     lch)
-	OPTS[order]="y z x"
-	OPTS[X]="$(seq -s, 0 60 359)"  # Hue
-	OPTS[Y]="$(seq -s, 0 5 99)"    # Luminance
-	OPTS[Z]="20,60,100"            # Chroma
+	xyz_order="y z x"
+	X=($(seq 0 60 359))      # Hue
+	Y=($(seq 0 5 99))        # Luminance
+	Z=(20,60,100)            # Chroma
 	;;
     *)
-	die "$1: unknown format"
+	die "$_fmt: unknown format"
     esac
 }
-gol_callback format -
-opt format && format $(opts format)
+[[ $format ]] && format $format
 
-getoptlong "$@"
-# shift $((OPTIND - 1))
-set -- "${ARGV[@]}"
+getoptlong parse "$@" && eval "$(getoptlong set)"
 
-opt pkg     && export TAC_COLOR_PACKAGE=${OPTS[pkg]}
-opt include && export PERL5LIB=${OPTS[include]}:$PERL5LIB
-opt debug   && {
-    gol_dump | column
-    declare -p opt_mods
-    declare -p opt_message
+[[ $package ]] && export TAC_COLOR_PACKAGE=${package}
+[[ $include ]] && export PERL5LIB=${include}:$PERL5LIB
+(( $debug > 1 )) && dump_opt=-a
+(( $debug > 0 )) && {
+    gol_dump ${dump_opt-} | column
+    declare -p mods
+    declare -p message
 }
 
 declare -A xyz=(
@@ -164,7 +155,7 @@ declare -A xyz=(
 )
 reorder() {
     local orig=("$@") ans p n
-    for p in $(opts order) ; do
+    for p in $xyz_order ; do
 	n=${xyz[$p]}
 	ans+=(${orig[$n]})
     done
@@ -174,37 +165,34 @@ reorder() {
 table() {
     local mod=$1
     local IFS=$' \t\n,'
-    Z=($(opts Z))
     for z in ${Z[@]} ; do
 	local option=(--separate $'\n')
-	X=($(opts X))
 	for x in ${X[@]} ; do
-	    Y=($(opts Y))
 	    local ys=${Y[0]} ye=${Y[$(( ${#Y[@]} - 1 ))]}
-	    opt terse || option+=("x=$x,y=$ys-$ye,z=$z")
+	    [[ $terse ]] || option+=("x=$x,y=$ys-$ye,z=$z")
 	    for y in ${Y[@]} ; do
-		col=$(printf "%s(%03d,%03d,%03d)" ${OPTS[format]} $(reorder $x $y $z))
-		opt reverse && arg="$col/$col$mod" \
-		            || arg="$col$mod/$col"
-		label="${OPTS[lead]}${OPTS[label]:-$col$mod}"
-		option+=(-c "$arg" "$label")
+		col=$(printf "%s(%03d,%03d,%03d)" ${format} $(reorder $x $y $z))
+		[[ $reverse ]] && arg="$col/$col$mod" \
+		               || arg="$col$mod/$col"
+		text="${leader}${label:-$col$mod}"
+		option+=(-c "$arg" "$text")
 	    done
 	done
-	if opt dryrun ; then
+	if [[ $dryrun ]] ; then
 	    echo ansiecho "${option[@]}"
 	else
-	    ansiecho "${option[@]}" | ansicolumn -C ${OPTS[column]:-${#X[@]}} --cu=1 --margin=0
+	    ansiecho "${option[@]}" | ansicolumn -C ${column:-${#X[@]}} --cu=1 --margin=0
 	fi
     done
 }
 
 (( $# > 0 )) && echo "$@"
-[[ ${#opt_mods[@]} == 0 ]] && opt_mods=(${OPTS[default]})
+[[ ${#mods[@]} == 0 ]] && mods=(${default_mod})
 
-[[ -v opt_message[BEGIN] ]] && echo "${opt_message[BEGIN]}"
+[[ -v message[BEGIN] ]] && echo "${message[BEGIN]}"
 
-for mod in "${opt_mods[@]}" ; do
+for mod in "${mods[@]}" ; do
     table $mod
 done
 
-[[ -v opt_message[END] ]] && echo "${opt_message[END]}"
+[[ -v message[END] ]] && echo "${message[END]}"
