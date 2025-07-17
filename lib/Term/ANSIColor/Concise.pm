@@ -787,69 +787,91 @@ C<SCP> and C<RCP> CSI code.
 Color names listed in L<Graphics::ColorNames::X> module can be used in
 the form of C<< <NAME> >>.
 
-    aliceblue antiquewhite aqua aquamarine azure beige bisque black
-    blanchedalmond blue blueviolet brown burlywood cadetblue
-    chartreuse chocolate coral cornflowerblue cornsilk crimson cyan
-    darkolivegreen dimgray dimgrey dodgerblue firebrick floralwhite
-    forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green
-    greenyellow grey honeydew hotpink indianred indigo ivory khaki
-    lavender lavenderblush lawngreen lemonchiffon lightgoldenrodyellow
-    lime limegreen linen magenta maroon midnightblue mintcream
-    mistyrose moccasin navajowhite navy navyblue oldlace olive
-    olivedrab orange orangered orchid papayawhip peachpuff peru pink
-    plum powderblue purple rebeccapurple red rosybrown royalblue
-    saddlebrown salmon sandybrown seagreen seashell sienna silver
-    skyblue slateblue slategray slategrey snow springgreen steelblue
-    tan teal thistle tomato turquoise violet violetred webgray
-    webgreen webgrey webmaroon webpurple wheat white whitesmoke
-    x11gray x11green x11grey x11maroon x11purple yellow yellowgreen
+    aliceblue      antiquewhite   aqua         aquamarine
+    azure          beige          bisque       black
+    blanchedalmond blue           blueviolet   brown
+    burlywood      cadetblue      chartreuse   chocolate
+    coral          cornflowerblue cornsilk     crimson
+    cyan           darkolivegreen dimgray      dimgrey
+    dodgerblue     firebrick      floralwhite  forestgreen
+    fuchsia        gainsboro      ghostwhite   gold
+    goldenrod      gray           green        greenyellow
+    grey           honeydew       hotpink      indianred
+    indigo         ivory          khaki        lavender
+    lavenderblush  lawngreen      lemonchiffon lightgoldenrodyellow
+    lime           limegreen      linen        magenta
+    maroon         midnightblue   mintcream    mistyrose
+    moccasin       navajowhite    navy         navyblue
+    oldlace        olive          olivedrab    orange
+    orangered      orchid         papayawhip   peachpuff
+    peru           pink           plum         powderblue
+    purple         rebeccapurple  red          rosybrown
+    royalblue      saddlebrown    salmon       sandybrown
+    seagreen       seashell       sienna       silver
+    skyblue        slateblue      slategray    slategrey
+    snow           springgreen    steelblue    tan
+    teal           thistle        tomato       turquoise
+    violet         violetred      webgray      webgreen
+    webgrey        webmaroon      webpurple    wheat
+    white          whitesmoke     x11gray      x11green
+    x11grey        x11maroon      x11purple    yellow
+    yellowgreen
+
 
 In the above list, next colors have variants with prefix of C<dark>,
 C<light>, C<medium>, C<pale>, C<deep>.
 
     aquamarine   medium_aquamarine
-    blue         dark_blue light_blue medium_blue
-    coral        light_coral
-    cyan         dark_cyan light_cyan
-    goldenrod    dark_goldenrod light_goldenrod pale_goldenrod
-    gray         dark_gray light_gray
-    green        dark_green light_green pale_green
-    grey         dark_grey light_grey
+    blue         dark_blue      light_blue       medium_blue
+    coral                       light_coral
+    cyan         dark_cyan      light_cyan
+    goldenrod    dark_goldenrod light_goldenrod  pale_goldenrod
+    gray         dark_gray      light_gray
+    green        dark_green     light_green      pale_green
+    grey         dark_grey      light_grey
     khaki        dark_khaki
     magenta      dark_magenta
     orange       dark_orange
-    orchid       dark_orchid medium_orchid
-    pink         deep_pink light_pink
-    purple       medium_purple
+    orchid       dark_orchid                     medium_orchid
+    pink         deep_pink      light_pink
+    purple                                       medium_purple
     red          dark_red
-    salmon       dark_salmon light_salmon
-    seagreen     dark_seagreen light_seagreen medium_seagreen
-    skyblue      deep_skyblue light_skyblue
-    slateblue    dark_slateblue light_slateblue medium_slateblue
+    salmon       dark_salmon    light_salmon
+    seagreen     dark_seagreen  light_seagreen   medium_seagreen
+    skyblue      deep_skyblue   light_skyblue
+    slateblue    dark_slateblue light_slateblue  medium_slateblue
     slategray    dark_slategray light_slategray
     slategrey    dark_slategrey light_slategrey
-    springgreen  medium_springgreen
-    steelblue    light_steelblue
+    springgreen                                  medium_springgreen
+    steelblue                   light_steelblue
     turquoise    dark_turquoise medium_turquoise pale_turquoise
     violet       dark_violet
-    violetred    medium_violetred pale_violetred
-    yellow       light_yellow
+    violetred                   medium_violetred pale_violetred
+    yellow                      light_yellow
 
 Next colors have four variants.  For example, color C<brown> has
 C<brown1>, C<brown2>, C<brown3>, C<brown4>.
 
-    antiquewhite aquamarine azure bisque blue brown burlywood
-    cadetblue chartreuse chocolate coral cornsilk cyan darkgoldenrod
-    darkolivegreen darkorange darkorchid darkseagreen darkslategray
-    deeppink deepskyblue dodgerblue firebrick gold goldenrod green
-    honeydew hotpink indianred ivory khaki lavenderblush lemonchiffon
-    lightblue lightcyan lightgoldenrod lightpink lightsalmon
-    lightskyblue lightsteelblue lightyellow magenta maroon
-    mediumorchid mediumpurple mistyrose navajowhite olivedrab orange
-    orangered orchid palegreen paleturquoise palevioletred peachpuff
-    pink plum purple red rosybrown royalblue salmon seagreen seashell
-    sienna skyblue slateblue slategray snow springgreen steelblue tan
-    thistle tomato turquoise violetred wheat yellow
+    antiquewhite   aquamarine     azure          bisque
+    blue           brown          burlywood      cadetblue
+    chartreuse     chocolate      coral          cornsilk
+    cyan           darkgoldenrod  darkolivegreen darkorange
+    darkorchid     darkseagreen   darkslategray  deeppink
+    deepskyblue    dodgerblue     firebrick      gold
+    goldenrod      green          honeydew       hotpink
+    indianred      ivory          khaki          lavenderblush
+    lemonchiffon   lightblue      lightcyan      lightgoldenrod
+    lightpink      lightsalmon    lightskyblue   lightsteelblue
+    lightyellow    magenta        maroon         mediumorchid
+    mediumpurple   mistyrose      navajowhite    olivedrab
+    orange         orangered      orchid         palegreen
+    paleturquoise  palevioletred  peachpuff      pink
+    plum           purple         red            rosybrown
+    royalblue      salmon         seagreen       seashell
+    sienna         skyblue        slateblue      slategray
+    snow           springgreen    steelblue      tan
+    thistle        tomato         turquoise      violetred
+    wheat          yellow
 
 C<gray> and C<grey> have 100 steps of variants.
 
