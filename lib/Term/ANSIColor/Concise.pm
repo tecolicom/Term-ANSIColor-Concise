@@ -782,6 +782,93 @@ C<SCP> and C<RCP> CSI code.
     R/G  500/050  #F00/#0F0  #FF0000/#00FF00  <red>/<green>
     W/w  L03/L20  #333/#ccc  #333333/#cccccc  <gray20>/<gray80>
 
+=head1 COLOR ADJUSTMENT
+
+Colors can be dynamically adjusted using modifier characters appended after 
+color specifications. These modifiers allow you to adjust various color 
+properties such as luminance, lightness, saturation, and hue.
+
+=head2 MODIFIER SYNTAX
+
+Color modifiers use the format: C<[OPERATION][PARAMETER][VALUE]>
+
+=over 4
+
+=item B<Operations>
+
+=over 4
+
+=item C<+> - Add value (relative adjustment)
+
+=item C<-> - Subtract value (relative adjustment)  
+
+=item C<=> - Set absolute value
+
+=item C<*> - Multiply by percentage (value/100)
+
+=item C<%> - Modulo operation
+
+=back
+
+=back
+
+=head2 ADJUSTABLE PARAMETERS
+
+=over 4
+
+=item B<l> - Lightness (HSL lightness: 0-100)
+
+    <red>l+10     # Increase red lightness by 10
+    <green>l-15   # Decrease green lightness by 15
+    <blue>l=75    # Set blue lightness to 75
+    <orange>l*120 # Multiply orange lightness by 1.2
+
+=item B<y> - Luminance (brightness perception: 0-100)
+
+    <red>y+10     # Increase red luminance by 10
+    <blue>y-20    # Decrease blue luminance by 20
+    <green>y=50   # Set green luminance to 50
+
+=item B<s> - Saturation (HSL saturation: 0-100)
+
+    <red>s+20     # Increase red saturation by 20
+    <yellow>s-30  # Decrease yellow saturation by 30
+    <magenta>s=0  # Set magenta saturation to 0 (grayscale)
+
+=item B<h> - Hue (HSL hue shift in degrees: 0-360)
+
+    <red>h+60     # Shift red hue by 60 degrees
+    <cyan>h-120   # Shift cyan hue by -120 degrees
+    <purple>h=180 # Set purple hue to 180 degrees
+
+=item B<c> - Complement (180 degree hue shift)
+
+    <red>c        # Get complement of red (cyan)
+
+=item B<r> - Rotate Hue (LCH hue rotation, preserving luminance)
+
+    <red>r+60     # Rotate red hue by 60 degrees in LCH space
+    <blue>r=180   # Rotate to 180 degrees (complement with luminance preserved)
+
+=item B<i> - Inverse (RGB inversion)
+
+    <red>i        # Invert red to cyan
+    <blue>i       # Invert blue to yellow
+
+=item B<g> - Luminance Grayscale (convert to grayscale using luminance)
+
+    <red>g        # Convert red to luminance-based grayscale
+
+=item B<G> - Lightness Grayscale (convert to grayscale using lightness)
+
+    <red>G        # Convert red to lightness-based grayscale
+
+=back
+
+The color adjustment functionality is implemented through the 
+L<Term::ANSIColor::Concise::Transform> module and uses 
+L<Term::ANSIColor::Concise::ColorObject> for color space conversions.
+
 =head1 COLOR NAMES
 
 Color names listed in L<Graphics::ColorNames::X> module can be used in
