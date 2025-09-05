@@ -873,28 +873,28 @@ Color modifiers use the format: C<[OPERATION][PARAMETER][VALUE]>
 
 =item B<l> - Lightness (HSL lightness: 0-100)
 
-    <red>l+10     # Increase red lightness by 10
-    <green>l-15   # Decrease green lightness by 15
-    <blue>l=75    # Set blue lightness to 75
-    <orange>l*120 # Multiply orange lightness by 1.2
+    <red>+l10     # Increase red lightness by 10
+    <green>-l15   # Decrease green lightness by 15
+    <blue>=l75    # Set blue lightness to 75
+    <orange>*l120 # Multiply orange lightness by 1.2
 
 =item B<y> - Luminance (brightness perception: 0-100)
 
-    <red>y+10     # Increase red luminance by 10
-    <blue>y-20    # Decrease blue luminance by 20
-    <green>y=50   # Set green luminance to 50
+    <red>+y10     # Increase red luminance by 10
+    <blue>-y20    # Decrease blue luminance by 20
+    <green>=y50   # Set green luminance to 50
 
 =item B<s> - Saturation (HSL saturation: 0-100)
 
-    <red>s+20     # Increase red saturation by 20
-    <yellow>s-30  # Decrease yellow saturation by 30
-    <magenta>s=0  # Set magenta saturation to 0 (grayscale)
+    <red>+s20     # Increase red saturation by 20
+    <yellow>-s30  # Decrease yellow saturation by 30
+    <magenta>=s0  # Set magenta saturation to 0 (grayscale)
 
 =item B<h> - Hue (HSL hue shift in degrees: 0-360)
 
-    <red>h+60     # Shift red hue by 60 degrees
-    <cyan>h-120   # Shift cyan hue by -120 degrees
-    <purple>h=180 # Set purple hue to 180 degrees
+    <red>+h60     # Shift red hue by 60 degrees
+    <cyan>-h120   # Shift cyan hue by -120 degrees
+    <purple>=h180 # Set purple hue to 180 degrees
 
 =item B<c> - Complement (180 degree hue shift)
 
@@ -902,8 +902,8 @@ Color modifiers use the format: C<[OPERATION][PARAMETER][VALUE]>
 
 =item B<r> - Rotate Hue (LCH hue rotation, preserving luminance)
 
-    <red>r+60     # Rotate red hue by 60 degrees in LCH space
-    <blue>r=180   # Rotate to 180 degrees (complement with luminance preserved)
+    <red>+r60     # Rotate red hue by 60 degrees in LCH space
+    <blue>=r180   # Rotate to 180 degrees (complement with luminance preserved)
 
 =item B<i> - Inverse (RGB inversion)
 
