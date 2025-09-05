@@ -513,7 +513,7 @@ colors and effects for ANSI terminals.  These notations are supposed to
 be used in command line option parameters.
 
 This module used to be a part of L<Getopt::EX::Colormap> module, which
-provide easy handling interface for command line options.
+provides an easy handling interface for command line options.
 
 =head2 COLOR SPECIFICATIONS
 
@@ -572,8 +572,8 @@ By default, this library produces ANSI 256 color sequence.  That is
 eight standard colors, eight high intensity colors, 6x6x6 216 colors,
 and gray scales in 24 steps.
 
-Color described by 12bit/24bit RGB values are converted to 6x6x6 216
-colors, or 24 gray scales if all RGB values are same.
+Colors described by 12bit/24bit RGB values are converted to 6x6x6 216
+colors, or 24 gray scales if all RGB values are the same.
 
 For a terminal which can display 24bit colors, full-color sequence can
 be produced.  See L</ENVIRONMENT> section.
@@ -585,11 +585,11 @@ be produced.  See L</ENVIRONMENT> section.
 
 =item B<ansi_color>(I<spec>, I<text>, ...)
 
-Return colorized version of given text.  Produces 256 or 24bit colors
+Returns the colorized version of the given text.  Produces 256 or 24bit colors
 depending on the setting.
 
-In the result, given I<text> is enclosed by appropriate open/close
-sequences.  Close sequence can vary according to the open sequence.
+In the result, the given I<text> is enclosed by appropriate open/close
+sequences.  The close sequence can vary according to the open sequence.
 See L</RESET SEQUENCE> section.
 
 If I<text> already contains colored areas, the color specifications
@@ -598,40 +598,40 @@ is given for a string of red text, both specifications will be in
 effect.
 
 The I<spec> and I<text> pairs can be repeated any number of times. In
-scalar context, the results by each pair are returned as a
-concatenated string. When used in an array context, results are
-returned in a list.
+scalar context, the results from each pair are returned as a
+concatenated string. When used in array context, results are
+returned as a list.
 
 =item B<ansi_color>([ I<spec1>, I<spec2>, ... ], I<text>)
 
-If I<spec> parameter is ARRAYREF, multiple I<spec>s can be specified
-at once.  This is not useful for a text color spec because they can be
+If the I<spec> parameter is an ARRAYREF, multiple I<spec>s can be specified
+at once.  This is not useful for text color specs because they can be
 simply joined, but may be useful when mixed with L</FUNCTION SPEC>.
 
 =item B<ansi_color_24>(I<spec>, I<text>)
 
 =item B<ansi_color_24>([ I<spec1>, I<spec2>, ... ], I<text>)
 
-Function B<ansi_color_24> always produces 24bit color sequence for
-12bit/24bit color spec.
+Function B<ansi_color_24> always produces 24bit color sequences for
+12bit/24bit color specs.
 
 =item B<cached_ansi_color>(I<cache>, I<spec>, I<text>)
 
-Backend interface for B<ansi_color>.  First parameter is a hash object
-used to cache data.  If you concern about cache mismatch situation,
-use this interface with original cache.
+Backend interface for B<ansi_color>.  The first parameter is a hash object
+used to cache data.  If you are concerned about cache mismatch situations,
+use this interface with an original cache.
 
 =item B<ansi_pair>(I<color_spec>)
 
-Produces introducer and recover sequences for given spec.
+Produces introducer and recovery sequences for the given spec.
 
-Additional third value indicates if the introducer includes Erase Line
-sequence.  It gives a hint the sequence is necessary for empty string.
+An additional third value indicates if the introducer includes an Erase Line
+sequence.  This gives a hint that the sequence is necessary for empty strings.
 See L</RESET SEQUENCE>.
 
 =item B<ansi_code>(I<color_spec>)
 
-Produces introducer sequence for given spec.  Reset code can be taken
+Produces introducer sequence for the given spec.  Reset code can be obtained
 by B<ansi_code("Z")>.
 
 =item B<csi_code>(I<name>, I<params>)
@@ -800,7 +800,7 @@ C<{NAME}>.
     SCP     Save Cursor Position
     RCP     Restore Cursor Position
 
-And there are some non-standard CSI sequenes.
+And there are some non-standard CSI sequences.
 
     CPR  n,m Cursor Position Report – VT100 to Host
     STBM n,m Set Top and Bottom Margins
@@ -814,8 +814,8 @@ C<{SGR(1,30,48,5,224)}>.
 
 Some other escape sequences are supported in the form of C<{NAME}>.
 These sequences do not start with CSI, and do not take parameters.
-VT100 compatible terminal usually support these, and does not support
-C<SCP> and C<RCP> CSI code.
+VT100 compatible terminals usually support these, and do not support
+C<SCP> and C<RCP> CSI codes.
 
     CSI      Control Sequence Introducer
     OSC      Operating System Command
@@ -991,7 +991,7 @@ C<light>, C<medium>, C<pale>, C<deep>.
     violetred                   medium_violetred pale_violetred
     yellow                      light_yellow
 
-Next colors have four variants.  For example, color C<brown> has
+The following colors have four variants.  For example, color C<brown> has
 C<brown1>, C<brown2>, C<brown3>, C<brown4>.
 
     antiquewhite   aquamarine     azure          bisque
@@ -1026,11 +1026,11 @@ for detail.
 
 =head1 FUNCTION SPEC
 
-Color spec can be CODEREF or object.  If it is a CODEREF, that code is
-called with text as an argument, and return the result.
+Color spec can be a CODEREF or object.  If it is a CODEREF, that code is
+called with text as an argument, and returns the result.
 
-If it is an object which has method C<call>, it is called with the
-variable C<$_> set as target text.
+If it is an object which has a method C<call>, it is called with the
+variable C<$_> set as the target text.
 
 
 =head1 RESET SEQUENCE
@@ -1040,26 +1040,26 @@ from colored text.  This is preferable to clear background color set
 by scrolling in the middle of colored text at the bottom of the
 terminal.
 
-However, on some terminal, including Apple_Terminal, I<Erase Line>
-sequence clear the text on the cursor position when it is at the
-rightmost column of the screen.  In other words, rightmost character
-sometimes mysteriously disappear when it is the last character in the
-colored region.  If you do not like this behavior, set module variable
-C<$NO_RESET_EL> or C<ANSICOLOR_NO_RESET_EL> environment.
+However, on some terminals, including Apple_Terminal, the I<Erase Line>
+sequence clears the text at the cursor position when it is at the
+rightmost column of the screen.  In other words, the rightmost character
+sometimes mysteriously disappears when it is the last character in the
+colored region.  If you do not like this behavior, set the module variable
+C<$NO_RESET_EL> or the C<ANSICOLOR_NO_RESET_EL> environment variable.
 
-I<Erase Line> sequence C<{EL}> clears the line from cursor position to
-the end of the line, which means filling the area by background color.
+The I<Erase Line> sequence C<{EL}> clears the line from the cursor position to
+the end of the line, which means filling the area with the background color.
 When I<Erase Line> is explicitly found in the start sequence, it is
-copied to just before (not after) ending reset sequence, with
-preceding sequence if necessary, to keep the effect of filling line
+copied to just before (not after) the ending reset sequence, with the
+preceding sequence if necessary, to keep the effect of filling the line
 even if the text is wrapped to multiple lines.
 
 See L</ENVIRONMENT> section.
 
 =head2 LESS
 
-Because I<Erase Line> sequence end with C<K>, it is a good idea to
-tell B<less> command so, if you want to see the output using it.
+Because the I<Erase Line> sequence ends with C<K>, it is a good idea to
+tell the B<less> command so, if you want to see the output using it.
 
     LESS=-cR
     LESSANSIENDCHARS=mK
@@ -1068,8 +1068,8 @@ tell B<less> command so, if you want to see the output using it.
 =head1 ENVIRONMENT
 
 If the environment variable C<NO_COLOR> is set, regardless of its
-value, colorization interface in this module never produce color
-sequence.  Primitive function such as C<ansi_code> is not the case.
+value, the colorization interface in this module will never produce color
+sequences.  Primitive functions such as C<ansi_code> are not affected.
 See L<https://no-color.org/>.
 
 =for comment
@@ -1077,19 +1077,18 @@ If the module variable C<$NO_NO_COLOR> or C<ANSICOLOR_NO_NO_COLOR>
 environment is true, C<NO_COLOR> value is ignored.
 
 Function B<ansi_color> produces 256 or 24bit colors depending on the
-value of C<$RGB24> module variable.  Also 24bit mode is enabled when
-environment C<ANSICOLOR_RGB24> is set or C<COLORTERM> is C<truecolor>.
+value of the C<$RGB24> module variable.  24bit mode is also enabled when
+the environment variable C<ANSICOLOR_RGB24> is set or C<COLORTERM> is C<truecolor>.
 
-If the module variable C<$NO_RESET_EL> set, or
-C<ANSICOLOR_NO_RESET_EL> environment, I<Erase Line> sequence is not
-produced with RESET code.  See L<RESET SEQUENCE>.
+If the module variable C<$NO_RESET_EL> is set, or the
+C<ANSICOLOR_NO_RESET_EL> environment variable is set, the I<Erase Line> sequence is not
+produced with the RESET code.  See L<RESET SEQUENCE>.
 
 
 =head1 COLOR TABLE
 
-Color table can be shown by other module
-L<Term::ANSIColor::Concise::Table>.  Next command will show table of
-256 colors.
+The color table can be shown by the L<Term::ANSIColor::Concise::Table> module.  
+The following command will show the table of 256 colors.
 
   $ perl -MTerm::ANSIColor::Concise::Table=:all -e colortable
 
@@ -1110,11 +1109,11 @@ L<Term::ANSIColor::Concise::Table>.  Next command will show table of
 
 =head2 L<Getopt::EX::Colormap>
 
-This module is originally implemented in L<Getopt::EX::Colormap>
-module.  It provides an easy way to maintain labeled and indexed list
-for color handling in command line option.
+This module was originally implemented in the L<Getopt::EX::Colormap>
+module.  It provides an easy way to maintain labeled and indexed lists
+for color handling in command line options.
 
-You can take care of user option like this:
+You can handle user options like this:
 
     use Getopt::Long;
     my @opt_colormap;
@@ -1138,15 +1137,15 @@ options for various tools.
 
 =head2 L<App::ansiecho>
 
-To use this module's function directly from a command line,
-L<App::ansiecho> is a good one.  You can apply colors and effects for
-echoing argument.
+To use this module's functions directly from the command line,
+L<App::ansiecho> is a good choice.  You can apply colors and effects to
+echoed arguments.
 
 =head2 L<App::Greple>
 
-This code and L<Getopt::EX> was implemented as a part of
-L<App::Greple> command originally.  It is still a intensive user of
-this module capability and would be a good use-case.
+This code and L<Getopt::EX> were originally implemented as part of
+the L<App::Greple> command.  It is still an intensive user of
+this module's capabilities and would be a good use case.
 
 =head2 L<Graphics::ColorObject>
 
