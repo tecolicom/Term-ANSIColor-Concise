@@ -490,6 +490,10 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
   say ansi_color('FUDI<Gold>/L10E',
                  'Flashing Underlined Bold Italic Gold on Gray10 Bar');
 
+  say ansi_color('<red>+l20-s10', 'Lightened desaturated red');
+  say ansi_color('hsl(240,100,50)=y70c', 'Blue set to 70% luminance then complemented');
+  say ansi_color('lab(50,20,-30)+h60', 'Lab color with hue shifted 60 degrees');
+
 =begin html
 
 <p><img width="750" src="https://raw.githubusercontent.com/tecolicom/Term-ANSIColor-Concise/main/images/synopsis.png">
@@ -510,6 +514,57 @@ be used in command line option parameters.
 
 This module used to be a part of L<Getopt::EX::Colormap> module, which
 provide easy handling interface for command line options.
+
+=head2 COLOR SPECIFICATIONS
+
+Colors can be specified using various formats and color spaces:
+
+=head3 RGB Colors
+
+=over 4
+
+=item Hexadecimal format
+
+    FF0000        # Red (6 digits)
+    #F00          # Red (3 digits)
+    #FF0000       # Red (with # prefix)
+
+=item Decimal format  
+
+    rgb(255,0,0)  # Red using RGB values (0-255)
+    (255,0,0)     # Red (rgb prefix optional)
+
+=back
+
+=head3 Other Color Spaces
+
+=over 4
+
+=item HSL (Hue, Saturation, Lightness)
+
+    hsl(0,100,50)     # Red: hue=0°, saturation=100%, lightness=50%
+    hsl(120,100,50)   # Green: hue=120°, saturation=100%, lightness=50%
+    hsl(240,100,50)   # Blue: hue=240°, saturation=100%, lightness=50%
+
+=item LCH (Lightness, Chroma, Hue) - CIE LCHab
+
+    lch(50,130,0)     # Red: lightness=50, chroma=130, hue=0°
+    lch(87,119,136)   # Green: lightness=87, chroma=119, hue=136°
+    lch(32,133,306)   # Blue: lightness=32, chroma=133, hue=306°
+
+=item Lab (Lightness, a*, b*) - CIE Lab
+
+    lab(50,68,48)     # Red: L*=50, a*=68, b*=48
+    lab(87,-79,80)    # Green: L*=87, a*=-79, b*=80  
+    lab(32,79,-108)   # Blue: L*=32, a*=79, b*=-108
+
+=back
+
+=head3 Named Colors
+
+    <red>             # Named color (see COLOR NAMES section)
+    <lightblue>       # Color name with modifier
+    <gray50>          # Grayscale levels
 
 =head2 256 or 24bit COLORS
 
