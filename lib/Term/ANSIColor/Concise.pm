@@ -1148,6 +1148,12 @@ This code and L<Getopt::EX> was implemented as a part of
 L<App::Greple> command originally.  It is still a intensive user of
 this module capability and would be a good use-case.
 
+=head2 L<Graphics::ColorObject>
+
+For detailed information about color spaces other than RGB (such as HSL, 
+LCH, Lab, YIQ, etc.), refer to L<Graphics::ColorObject> which provides 
+comprehensive color space conversion capabilities used by this module.
+
 =head2 OTHERS
 
 L<https://en.wikipedia.org/wiki/ANSI_escape_code>
