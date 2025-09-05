@@ -2,6 +2,15 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+3.01 2025-09-05T09:44:27Z
+
+    - Add support for color adjustment modifiers: luminance (y), lightness (l), saturation (s), hue (h)
+    - Add support for color transformation operations: complement (c), LCH hue rotation (r), inversion (i)
+    - Add support for grayscale conversion: luminance-based (g) and lightness-based (G)
+    - Add support for HSL, LCH, and Lab color space specifications
+    - Add comprehensive documentation and test coverage for new color features
+    - Fix grammar and language issues throughout documentation
+
 2.08 2024-11-16T05:38:13Z
 
     - add "Left Right Margin Mode" sequence

@@ -2,7 +2,7 @@
 
 package Term::ANSIColor::Concise::Transform;
 
-our $VERSION = "2.08";
+our $VERSION = "3.01";
 
 use v5.14;
 use warnings;

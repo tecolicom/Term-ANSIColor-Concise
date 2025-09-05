@@ -72,7 +72,7 @@
          "web" : "https://github.com/tecolicom/Term-ANSIColor-Concise"
       }
    },
-   "version" : "2.08",
+   "version" : "3.01",
    "x_authority" : "cpan:UTASHIRO",
    "x_contributors" : [
       "Kazumasa Utashiro <kaz@utashiro.com>",
