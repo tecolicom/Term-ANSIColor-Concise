@@ -19,14 +19,15 @@ use utf8;
 use Data::Dumper;
 use parent 'Graphics::ColorObject';
 
-package Graphics::ColorObject {
+{
     no strict 'refs';
     no warnings 'redefine';
-    for my $name (qw(namecolor)) {
-        my $sub = \&{__PACKAGE__."::$name"};
+    for my $sub (qw(namecolor)) {
+        my $name = "Graphics::ColorObject::$sub";
+        my $save = \&{$name};
         *{$name} = sub {
             $_[1] // return;
-            goto $sub;
+            goto $save;
         }
     }
 }
