@@ -75,26 +75,24 @@ This is a Perl module using Minilla and Module::Build::Tiny:
 # Install dependencies
 cpanm --installdeps .
 
-# Build the module
-perl Build.PL
-./Build
+# Build distribution tarball
+minil dist
 
-# Run all tests
-./Build test
-prove -l t/
-
-# Run specific test file
-perl -Ilib t/01_color.t
+# Test distribution build
+minil dist --test
 
 # Clean build artifacts
-./Build realclean
+minil clean
 ```
 
 ### Testing
 
 ```bash
+# Run all tests (recommended)
+minil test
+
 # Run all tests with verbose output
-prove -lv t/
+prove -lv
 
 # Test specific functionality
 perl -Ilib t/01_color.t      # Basic color generation
