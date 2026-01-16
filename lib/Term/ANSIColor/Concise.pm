@@ -839,9 +839,14 @@ C<SCP> and C<RCP> CSI codes.
 
 =head1 COLOR ADJUSTMENT
 
-Colors can be dynamically adjusted using modifier characters appended after 
-color specifications. These modifiers allow you to adjust various color 
+Colors can be dynamically adjusted using modifier characters appended after
+color specifications. These modifiers allow you to adjust various color
 properties such as luminance, lightness, saturation, and hue.
+
+B<Note:> Modifiers can only be used with full color specifications:
+hex (C<#FF0000>), RGB (C<rgb(255,0,0)>), HSL, LCH, Lab, or named colors
+(C<< <red> >>).  Basic 8+8 colors (C<R>, C<G>, C<B>, etc.) and 6x6x6 216
+colors (C<555>, etc.) do not support modifiers.
 
 =head2 MODIFIER SYNTAX
 
