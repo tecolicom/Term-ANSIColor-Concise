@@ -684,19 +684,20 @@ Single uppercase character representing 8 colors, and alternative
 
 =head2 EFFECTS and CONTROLS
 
-Single case-insensitive character for special effects :
+Single case-insensitive character for special effects.  Numbers
+indicate SGR (Select Graphic Rendition) parameter values:
 
     N    None
     Z  0 Zero (reset)
-    D  1 Double strike (boldface)
-    P  2 Pale (dark)
+    D  1 Double-struck (boldface)
+    P  2 Pale (faint/dim)
     I  3 Italic
     U  4 Underline
     F  5 Flash (blink: slow)
     Q  6 Quick (blink: rapid)
-    S  7 Stand out (reverse video)
-    H  8 Hide (conceal)
-    X  9 Cross out
+    S  7 Stand-out (reverse video)
+    H  8 Hide (concealed)
+    X  9 Cross-out (strikethrough)
 
     E    Erase Line (fill by background color)
 

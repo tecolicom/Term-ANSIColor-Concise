@@ -75,7 +75,7 @@ sub luv {
         my($L, $u, $v) = @_;
         bless Graphics::ColorObject->new_Luv([ $L, $u / 100, $v / 100 ]), $class;
     } else {
-        my($L, $u, $v) = @{$self->as_Lab};
+        my($L, $u, $v) = @{$self->as_Luv};
         map int, ($L, $u * 100, $v * 100);
     }
 }
@@ -123,9 +123,31 @@ sub get_luminance {
     int $_[0] -> as_Lab -> [0];
 }
 
+sub in_rgb_gamut {
+    my $self = shift;
+    my @rgb = @{$self->as_RGB};
+    !grep { $_ < 0 || $_ > 1 } @rgb;
+}
+
 sub set_luminance {
     my($self, $L) = @_;
-    __PACKAGE__->lab(set([ 0 => $L ], $self->lab));
+    my @lab = $self->lab;
+    my $new = __PACKAGE__->lab(set([ 0 => $L ], @lab));
+    return $new if $new->in_rgb_gamut;
+
+    # Reduce chroma to fit in RGB gamut using binary search
+    my($a, $b) = @lab[1, 2];
+    my($lo, $hi) = (0, 100);
+    while ($hi - $lo > 1) {
+        my $mid = ($lo + $hi) / 2;
+        my $test = __PACKAGE__->lab($L, $a * $mid / 100, $b * $mid / 100);
+        if ($test->in_rgb_gamut) {
+            $lo = $mid;
+        } else {
+            $hi = $mid;
+        }
+    }
+    __PACKAGE__->lab($L, $a * $lo / 100, $b * $lo / 100);
 }
 
 1;
