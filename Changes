@@ -2,6 +2,14 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+3.03 2026-11-05T04:18:26Z
+
+    - Allow a colon after an effect for SGR subparameters: U:3 produces ESC[4:3m (curly underline in many terminals)
+    - Remove the getoptlong submodule and its tests from the distribution; t/cmap takes getoptlong.sh from PATH
+    - Fix and document the options of the t/cmap demo script
+    - Change the default modifier of t/cmap to +r90%y50, and document the label color for a background with the measurements
+    - Fix the document: the complement modifier is +c, not c
+
 3.02 2026-01-19T10:11:49Z
 
     - Fix luminance setting to reduce chroma when out of RGB gamut
