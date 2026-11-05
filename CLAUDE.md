@@ -191,13 +191,11 @@ Since version 2.05, the module supports cumulative color application - when appl
 - Tests verify both 256-color and 24-bit RGB output modes
 - Multi-line text handling and nested color specs are tested
 - Color space conversions tested with known reference values
-- The `t/getoptlong/` directory is a git submodule for integration testing
 
 ## CI/CD
 
 GitHub Actions workflow tests against multiple Perl versions:
 - Perl 5.40, 5.38, 5.30, 5.28, 5.24, 5.18, 5.16, 5.14
 - Uses `shogo82148/actions-setup-perl` action
-- Initializes git submodule for tests
 - Installs dependencies via cpanm
 - Runs full test suite

@@ -89,7 +89,7 @@ declare -A OPTS=(
 #   [     message     % #                                       ]="([BEGIN]=$'HELLO\n' [END]=$'\nGOODBY')"
 )
 
-. "${0%/*}"/getoptlong/script/getoptlong.sh -
+. getoptlong.sh -
 getoptlong init OPTS
 getoptlong callback man   'my_help'  \
                     usage 'my_help'
