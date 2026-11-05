@@ -186,7 +186,7 @@ my $colorspec_re = qr{
              | [;NZDPIUFQSHX] )          # effect
     | (?<csi>  \{ (?<csi_name>[A-Z]+)    # other CSI
                   (?<P>   \( )?          # optional (
-                  (?<csi_param>[\d,;]*)  # 0;1;2
+                  (?<csi_param>[\d,:;]*) # 0;1;2
                   (?(<P>) \) )           # closing )
                \}
              | (?<csi_abbr>[E]) )        # abbreviation
@@ -262,12 +262,15 @@ sub ansi_numbers {
                 push @numbers, ($n + $offset) . $style;
             }
         }
-        elsif ($+{csi}) {
+        elsif (my $csi = $+{csi}) {
             push @numbers, do {
                 if ($+{csi_abbr}) {
                     [ $numbers{uc $+{csi_abbr}} ];
                 } else {
-                    [ uc $+{csi_name}, $+{csi_param} =~ /\d+/g ];
+                    my($name, $param) = (uc $+{csi_name}, $+{csi_param});
+                    croak "Color spec error: \"$csi\" in \"$_\"."
+                        if $name ne q(SGR) and $param =~ /:/;
+                    [ $name, $param =~ /[\d:]+/g ];
                 }
             };
         }
@@ -826,6 +829,12 @@ comma (C<,>) or semicolon (C<;>) to separate multiple ones, with
 optional parentheses.  For example, color spec C<DK/544> can be
 described as C<{SGR1;30;48;5;224}> or more readable
 C<{SGR(1,30,48,5,224)}>.
+
+The parameters of C<SGR> can also have colons, as in C<{SGR4:2}> or
+C<{SGR(4:3,58:2::255:0:0)}>, which produces
+C<ESC[4:3;58:2::255:0:0m>.  They are passed as they are.  See the
+notes on C<U:3> above for what terminals do with them.  Other names do
+not take colons.
 
 Some other escape sequences are supported in the form of C<{NAME}>.
 These sequences do not start with CSI, and do not take parameters.

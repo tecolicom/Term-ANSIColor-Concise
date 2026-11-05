@@ -326,6 +326,12 @@ optional parentheses.  For example, color spec `DK/544` can be
 described as `{SGR1;30;48;5;224}` or more readable
 `{SGR(1,30,48,5,224)}`.
 
+The parameters of `SGR` can also have colons, as in `{SGR4:2}` or
+`{SGR(4:3,58:2::255:0:0)}`, which produces
+`ESC[4:3;58:2::255:0:0m`.  They are passed as they are.  See the
+notes on `U:3` above for what terminals do with them.  Other names do
+not take colons.
+
 Some other escape sequences are supported in the form of `{NAME}`.
 These sequences do not start with CSI, and do not take parameters.
 VT100 compatible terminals usually support these, and do not support

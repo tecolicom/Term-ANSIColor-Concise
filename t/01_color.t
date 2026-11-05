@@ -150,6 +150,14 @@ is(ansi_code("DK/{EL}544"), "\e[1;30m"."\e[K"."\e[48;5;224m" , "{EL}");
 is(ansi_code("{SGR}"), "\e[m", "{SGR}");
 is(ansi_code("{SGR1;30;48;5;224}"), "\e[1;30;48;5;224m", "{SGR...}");
 is(ansi_code("{SGR(1,30,48,5,224)}"), "\e[1;30;48;5;224m", "{SGR(...)}");
+is(ansi_code("{SGR4:2}"), "\e[4:2m", "{SGR...} with a colon");
+is(ansi_code("{SGR(4:2,1)}"), "\e[4:2;1m", "{SGR(...)} with a colon");
+is(ansi_code("{SGR4:3;58:2::255:0:0}"), "\e[4:3;58:2::255:0:0m", "{SGR...} with empty values");
+is(ansi_color("{SGR4:2}", "AB"), "\e[4:2m" . "AB" . RESET, "ansi_color with {SGR...} and a colon");
+for my $spec ("{CUP1:2}", "{EL(0:1)}") {
+    eval { ansi_code($spec) };
+    like($@, qr/Color spec error: "\Q$spec\E"/, "$spec: a colon is only for SGR");
+}
 
 like(ansi_end("DK/544E"), qr/^\e\[?K/, "E before RESET");
 like(ansi_end("DK/544{EL}"), qr/^\e\[?K/, "{EL} before RESET");
