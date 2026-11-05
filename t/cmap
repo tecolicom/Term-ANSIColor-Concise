@@ -141,7 +141,7 @@ format() {
 getoptlong parse "$@" && eval "$(getoptlong set)"
 
 [[ $package ]] && export TAC_COLOR_PACKAGE=${package}
-[[ $include ]] && export PERL5LIB=${include}:$PERL5LIB
+[[ $include ]] && export PERL5LIB=${include}${PERL5LIB:+:$PERL5LIB}
 (( $debug > 1 )) && dump_opt=-a
 (( $debug > 0 )) && {
     gol_dump ${dump_opt-} | column
@@ -195,4 +195,6 @@ for mod in "${mods[@]}" ; do
     table $mod
 done
 
-[[ -v message[END] ]] && echo "${message[END]}"
+if [[ -v message[END] ]] ; then
+    echo "${message[END]}"
+fi
