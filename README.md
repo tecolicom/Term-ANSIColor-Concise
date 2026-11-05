@@ -16,7 +16,7 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
                    'Flashing Underlined Bold Italic Gold on Gray10 Bar');
 
     say ansi_color('<red>+l20-s10', 'Lightened desaturated red');
-    say ansi_color('hsl(240,100,50)=y70c', 'Blue set to 70% luminance then complemented');
+    say ansi_color('hsl(240,100,50)=y70+c', 'Blue set to 70% luminance then complemented');
     say ansi_color('lab(50,20,-30)+h60', 'Lab color with hue shifted 60 degrees');
 
 <div>
@@ -373,6 +373,8 @@ Color modifiers use the format: `[OPERATION][PARAMETER][VALUE]`
     - `*` - Multiply by percentage (value/100)
     - `%` - Modulo operation
 
+        Add the value, and take the result modulo 100.
+
 ## ADJUSTABLE PARAMETERS
 
 - **l** - Lightness (HSL lightness: 0-100)
@@ -402,7 +404,7 @@ Color modifiers use the format: `[OPERATION][PARAMETER][VALUE]`
 
 - **c** - Complement (180 degree hue shift)
 
-        <red>c        # Get complement of red (cyan)
+        <red>+c       # Get complement of red (cyan)
 
 - **r** - Rotate Hue (LCH hue rotation, preserving luminance)
 
@@ -425,6 +427,74 @@ Color modifiers use the format: `[OPERATION][PARAMETER][VALUE]`
 The color adjustment functionality is implemented through the 
 [Term::ANSIColor::Concise::Transform](https://metacpan.org/pod/Term%3A%3AANSIColor%3A%3AConcise%3A%3ATransform) module and uses 
 [Term::ANSIColor::Concise::ColorObject](https://metacpan.org/pod/Term%3A%3AANSIColor%3A%3AConcise%3A%3AColorObject) for color space conversions.
+
+## LABEL COLOR FOR A BACKGROUND
+
+The modifier `+r90%y50` makes the color of a label from the color of
+its background, as in a table of color samples:
+
+    <color>+r90%y50/<color>
+
+`%y50` adds 50 to the luminance modulo 100, which puts the text in the
+other half of the luminance range.  `+r90` rotates the hue, and keeps
+the luminance that `%y50` starts from.  The background is the subject
+and the label only describes it, so the label should be readable
+without standing out, in an even tone over all backgrounds.  The aim is
+not the highest contrast.
+
+The tables below show the measurements behind this choice, for 960
+background colors: hue 0 to 330 by 30, saturation 20, 50, 80 and 100,
+and lightness 0 to 95 by 5, in 24bit mode.  `Contrast` is the WCAG
+contrast ratio between text and background, with the number of
+backgrounds below 4.5.  `Vivid` is the median CIELAB chroma of the
+text on backgrounds of saturation 100 and lightness 30 to 70.
+
+The rotation angle has almost no effect on the contrast, so it can be
+chosen by appearance.  Vividness is at its lowest at 60 and 90 degrees,
+and at its highest at 180 degrees, where saturated text on a saturated
+background is hard on the eyes.  With 90 degrees, text on a blue
+background has a red tint.
+
+    Modifier       Contrast     Median  <4.5  Vivid
+    %y50           4.38 - 5.89    5.24    14   28.0
+    +r30%y50       4.39 - 5.92    5.24    14   27.5
+    +r60%y50       4.39 - 5.89    5.24    14   24.5
+    +r90%y50       4.39 - 5.92    5.25    14   24.5
+    +r120%y50      4.38 - 5.91    5.25    15   26.0
+    +r150%y50      4.39 - 5.90    5.24    15   34.4
+    +r180%y50      4.38 - 5.89    5.25    15   48.0
+    +r210%y50      4.38 - 5.92    5.24    14   42.4
+    +r240%y50      4.38 - 5.90    5.24    13   42.1
+    +r270%y50      4.39 - 5.92    5.24    14   38.3
+    +r300%y50      4.38 - 5.91    5.25    15   34.4
+    +r330%y50      4.39 - 5.90    5.24    14   31.7
+
+The other candidates do not keep the contrast as even.  Hue rotation in
+HSL (`+c`) changes the luminance, and some text becomes unreadable.
+Lower saturation (`*s50`) changes the luminance after `%y50` has set
+it.  Gray text has no color at all.  Black or white text, whichever is
+higher, gives the most contrast but the widest range.
+
+    Modifier        Contrast      Median  <4.5  Vivid
+    +c%y50          1.01 - 18.92    4.69   429   28.8
+    %y50*s50        3.67 -  7.71    5.35    47   17.3
+    +g%y50          4.21 -  5.89    5.16    49    0.0
+    black or white  4.59 - 21.00   12.05     0      -
+
+For text to be read for its own sake, this is not enough: it does not
+fully meet the WCAG recommendations for normal text.
+`+r90%y50` is below 4.5 (level AA) on 14 of the 960 backgrounds, by at
+most 0.11, all of them at luminance 48 to 50, where white text reaches
+only 4.5 to 4.8.  It reaches 7 (level AAA) on none, while black or white
+reaches it on 762; on the other 198 no color can.  Other offsets are
+worse: `%y48` is below 4.5 on 138 backgrounds and `%y52` on 65.  Use
+black or white text where the recommendations have to be met, though
+the text then stands out against the background.
+
+Contrast ratio and chroma are only guides to how the colors look.  To
+compare them on your terminal, use `t/cmap` in the distribution:
+
+    t/cmap -m '%y50' -m '+r90%y50' -m '+r180%y50' -Z 100
 
 # COLOR NAMES
 

@@ -58,7 +58,7 @@ Color modifier of the foreground.  A table is printed for each modifier.
 
 =item B<-D> I<modifier>, B<--default-mod>=I<modifier>
 
-Modifier used when no B<-m> is given.  Default is C<+r180%y50>.
+Modifier used when no B<-m> is given.  Default is C<+r90%y50>.
 
 =item B<-r>, B<--reverse>
 
@@ -121,7 +121,7 @@ Show this document.
 
     cmap
     cmap -f rgb
-    cmap -f lch -m '+r180%y50' -m '+l20'
+    cmap -f lch -m '+r90%y50' -m '+l20'
     cmap -t --label=Sample -X 0,120,240 -Z 100
     cmap -f rgb-chart
 
@@ -142,8 +142,8 @@ cmap [ options ]
 declare -A OPTS=(
     [&REQUIRE]=1.1.0 [&USAGE]="$USAGE"
     [      format | f :  # color FORMAT: hsl, rgb, lch, rgb-chart ]=hsl
-    [ default-mod | D :  # MODIFIER used without --mods           ]="+r180%y50"
-    [        mods | m @  # color MODIFIER (ex. +r180%y50)         ]=
+    [ default-mod | D :  # MODIFIER used without --mods           ]="+r90%y50"
+    [        mods | m @  # color MODIFIER (ex. +r90%y50)          ]=
     [     package | M :  # color PACKAGE: ColorObject, Color      ]=
     [      leader | L :  # STRING before the text of a sample     ]="██  "
     [               X @  # values of X                            ]=
