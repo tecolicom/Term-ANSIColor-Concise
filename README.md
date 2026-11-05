@@ -216,6 +216,18 @@ Tilde (`~`) negates following effect; `~S` reset the effect of `S`.
 There is a discussion about negation of `D` (Track Wikipedia link in
 SEE ALSO), and Apple\_Terminal (v2.10 433) does not reset at least.
 
+A colon after an effect, with the digits and colons that follow it, is
+put into its SGR parameter: `U:3` produces `ESC[4:3m`.  This is the
+form of a parameter in ECMA-48, and the text is not checked.  Its
+meaning comes from the terminals.  The one in common use is the
+underline style: terminals that support it commonly take 1 for
+straight, 2 for double, 3 for curly, 4 for dotted, 5 for dashed and 0
+for none.  A terminal without support may show something quite
+different: Apple\_Terminal (v2.14 455.1) ignores the colons and shows `ESC[4:3m` as
+`ESC[43m`, with a yellow background.
+Put `;` before a color that starts with a digit, as in
+`U:3;555`.  A negated effect such as `~U` takes no colon.
+
 Single `E` is an abbreviation for `{EL}` (Erase Line).  This is
 different from other attributes, but have an effect of painting the
 rest of line by background color.

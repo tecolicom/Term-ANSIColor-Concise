@@ -182,6 +182,7 @@ my $colorspec_re = qr{
     | (?<c16>  [KRGYBMCW] )              # 16 colors
     # Effects and controls
     | (?<efct>   ~[DPIUFQSHX]            # ~effect
+             | [DPIUFQSHX]:[\d:]*        # effect:style
              | [;NZDPIUFQSHX] )          # effect
     | (?<csi>  \{ (?<csi_name>[A-Z]+)    # other CSI
                   (?<P>   \( )?          # optional (
@@ -256,8 +257,9 @@ sub ansi_numbers {
         elsif ($+{efct}) {
             my $efct = uc $+{efct};
             my $offset = $efct =~ s/^~// ? 20 : 0;
+            my $style = $efct =~ s/(:[\d:]*)$// ? $1 : '';
             if (defined (my $n = $numbers{$efct})) {
-                push @numbers, $n + $offset;
+                push @numbers, ($n + $offset) . $style;
             }
         }
         elsif ($+{csi}) {
@@ -343,7 +345,7 @@ sub csi_code {
         return $seq;
     }
     my $c = $csi_terminator{$name} or die "$name: Unknown ANSI name.\n";
-    if ($name eq 'SGR' and @_ == 1 and $_[0] == 0) {
+    if ($name eq 'SGR' and @_ == 1 and $_[0] =~ /^0+$/) {
         @_ = ();
     }
     CSI . join(';', @_) . $c;
@@ -709,6 +711,18 @@ indicate SGR (Select Graphic Rendition) parameter values:
 Tilde (C<~>) negates following effect; C<~S> reset the effect of C<S>.
 There is a discussion about negation of C<D> (Track Wikipedia link in
 SEE ALSO), and Apple_Terminal (v2.10 433) does not reset at least.
+
+A colon after an effect, with the digits and colons that follow it, is
+put into its SGR parameter: C<U:3> produces C<ESC[4:3m>.  This is the
+form of a parameter in ECMA-48, and the text is not checked.  Its
+meaning comes from the terminals.  The one in common use is the
+underline style: terminals that support it commonly take 1 for
+straight, 2 for double, 3 for curly, 4 for dotted, 5 for dashed and 0
+for none.  A terminal without support may show something quite
+different: Apple_Terminal (v2.14 455.1) ignores the colons and shows C<ESC[4:3m> as
+C<ESC[43m>, with a yellow background.
+Put C<;> before a color that starts with a digit, as in
+C<U:3;555>.  A negated effect such as C<~U> takes no colon.
 
 Single C<E> is an abbreviation for C<{EL}> (Erase Line).  This is
 different from other attributes, but have an effect of painting the
