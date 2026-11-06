@@ -23,6 +23,7 @@ $Data::Dumper::Sortkeys = 1;
 use List::Util qw(min max first);
 
 use Term::ANSIColor::Concise::Util;
+use Term::ANSIColor::Concise::Transform qw(transform $mod_re);
 
 use aliased;
 my $Color = alias 'Term::ANSIColor::Concise::' . ($ENV{TAC_COLOR_PACKAGE} || 'ColorObject');
@@ -157,8 +158,6 @@ my %numbers = (
     C => 36, c => 96,   # C : Cyan 
     W => 37, w => 97,   # W : White
     );
-
-use Term::ANSIColor::Concise::Transform qw(transform $mod_re);
 
 my $colorspec_re = qr{
     (?<spec>
