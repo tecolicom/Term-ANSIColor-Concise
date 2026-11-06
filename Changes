@@ -2,6 +2,11 @@ Revision history for Perl extension Term-ANSIColor-Concise
 
 {{$NEXT}}
 
+3.04 2026-11-06T02:34:24Z
+
+    - Allow colons in the parameters of {SGR...}: {SGR4:2} and {SGR(4:3,58:2::255:0:0)}; other CSI names still reject a colon
+    - Reorganize the manual and fix its errors: modifiers such as +i need the operation character (<red>i is italic red), and =h and =r shift the hue rather than set it
+
 3.03 2026-11-05T04:18:26Z
 
     - Allow a colon after an effect for SGR subparameters: U:3 produces ESC[4:3m (curly underline in many terminals)
