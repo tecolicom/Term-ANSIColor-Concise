@@ -2,7 +2,7 @@
 
 package Term::ANSIColor::Concise;
 
-our $VERSION = "3.05";
+our $VERSION = "3.06";
 
 use v5.14;
 use warnings;
@@ -512,7 +512,7 @@ Term::ANSIColor::Concise - Produce ANSI terminal sequence by concise notation
 
 =head1 VERSION
 
-Version 3.05
+Version 3.06
 
 
 =head1 DESCRIPTION
